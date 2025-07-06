@@ -1,18 +1,17 @@
 # Etapa 1: Build da app Flutter web
-FROM dart:stable AS build
+FROM cirrusci/flutter:latest AS build
 
 WORKDIR /app
 
-# Copiar pubspec antes para fazer cache das dependências
+# Copiar pubspec antes para cache das dependências
 COPY pubspec.* ./
-RUN dart pub get
+RUN flutter pub get
 
 # Copiar o resto da app
 COPY . .
 
 # Build Flutter Web
-RUN dart pub global activate flutter_tools && \
-    flutter build web --release
+RUN flutter build web --release
 
 # Etapa 2: Servir com NGINX
 FROM nginx:alpine
