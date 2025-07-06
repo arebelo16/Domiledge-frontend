@@ -1,6 +1,24 @@
 import 'package:flutter/material.dart';
-import 'app.dart';
+import 'routes/app_routes.dart';
 
 void main() {
-  runApp(const StayWiseApp());
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'StayWise',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      initialRoute: '/login',
+      routes: appRoutes,
+    );
+  }
 }

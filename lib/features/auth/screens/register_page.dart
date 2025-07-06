@@ -1,27 +1,32 @@
+// lib/features/auth/screens/register_page.dart
 import 'package:flutter/material.dart';
-import '../controllers/auth_controller.dart';
 import '../../../shared/widgets/custom_button.dart';
 import '../../../shared/widgets/text_fields.dart';
+import '../controllers/auth_controller.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _authController = AuthController();
 
-  void _login() async {
-    final success = await _authController.login(
+  void _register() async {
+    final success = await _authController.register(
       _usernameController.text.trim(),
       _passwordController.text.trim(),
     );
     if (success && mounted) {
       Navigator.pushReplacementNamed(context, '/home');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Registration failed')),
+      );
     }
   }
 
@@ -32,11 +37,10 @@ class _LoginPageState extends State<LoginPage> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                'Welcome Back!',
+                'Create Account',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
@@ -51,25 +55,17 @@ class _LoginPageState extends State<LoginPage> {
                 label: 'Password',
                 obscureText: true,
               ),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {},
-                  child: const Text('Forgot password?'),
-                ),
-              ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               CustomButton(
-                text: 'Login',
-                onPressed: _login,
+                text: 'Register',
+                onPressed: _register,
               ),
               const SizedBox(height: 16),
               TextButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/register');
+                  Navigator.pushReplacementNamed(context, '/login');
                 },
-                child: const Text("Don't have an account? Register here"),
+                child: const Text('Already have an account? Login'),
               ),
             ],
           ),

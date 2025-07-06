@@ -1,20 +1,24 @@
-import 'dart:convert';
+import 'package:http/src/response.dart';
 
-import 'package:staywise_frontend/features/auth/model/login_request.dart';
-import 'package:staywise_frontend/features/auth/model/auth_response.dart';
-import '../../../config/env.dart';
 import '../../../core/services/http_services.dart';
+import '../model/login_request.dart';
+import '../model/register_request.dart';
+import '../model/auth_response.dart';
+import '../../../config/env.dart';
 
 class AuthApi {
-  final HttpService _httpService = HttpService();
+  final _http = HttpService();
 
-  Future<AuthResponse> login(LoginRequest request) async {
-    final response = await _httpService.post('${Env.apiUrl}/auth/login', request.toJson());
-
+  Future<String?> login(LoginRequest request) async {
+    final response = await _http.post('${Env.apiUrl}/auth/login', data: request.toJson());
     if (response.statusCode == 200) {
-      return AuthResponse.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Login failed');
+      return AuthResponse.fromJson(response.data).token;
     }
+    return null;
+  }
+
+  Future<bool> register(RegisterRequest request) async {
+    final response = await _http.post('${Env.apiUrl}/auth/register', data: request.toJson());
+    return response.statusCode == 200;
   }
 }

@@ -1,18 +1,30 @@
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:staywise_frontend/core/services/storage_services.dart';
+import '../../../config/env.dart';
 
 class HttpService {
-  final _client = http.Client();
+  final Dio _dio = Dio();
 
-  Future<http.Response> post(String url, Map<String, dynamic> body) async {
-    final headers = {'Content-Type': 'application/json'};
-    return _client.post(Uri.parse(url), body: jsonEncode(body), headers: headers);
+  HttpService() {
+    _dio.options.baseUrl = Env.apiUrl;
   }
 
-  Future<http.Response> get(String url) async {
+  Future<Response> post(String url, {Map<String, dynamic>? data}) async {
     final token = await StorageService.getToken();
-    final headers = {'Authorization': 'Bearer $token'};
-    return _client.get(Uri.parse(url), headers: headers);
+    final headers = {
+      'Content-Type': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+
+    return _dio.post(url, data: data, options: Options(headers: headers));
+  }
+
+  Future<Response> get(String url) async {
+    final token = await StorageService.getToken();
+    final headers = {
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+
+    return _dio.get(url, options: Options(headers: headers));
   }
 }
