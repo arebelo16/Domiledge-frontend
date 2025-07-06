@@ -1,28 +1,28 @@
-# Etapa 1: Build da app Flutter web
-FROM cirrusci/flutter:latest AS build
+# Stage 1: Build Flutter Web App
+FROM cirrusci/flutter:3.19.6 AS build
 
 WORKDIR /app
 
-# Copiar pubspec antes para cache das dependências
+# Copy dependency files and install them
 COPY pubspec.* ./
 RUN flutter pub get
 
-# Copiar o resto da app
+# Copy the rest of the application
 COPY . .
 
-# Build Flutter Web
+# Build the web version of the app
 RUN flutter build web --release
 
-# Etapa 2: Servir com NGINX
+# Stage 2: Serve with Nginx
 FROM nginx:alpine
 
-# Remove config default do NGINX
+# Remove the default Nginx config
 RUN rm /etc/nginx/conf.d/default.conf
 
-# Copia config customizada do NGINX
+# Copy the custom Nginx configuration
 COPY nginx.conf /etc/nginx/conf.d
 
-# Copia os ficheiros web para servir
+# Copy the built web files to the Nginx public directory
 COPY --from=build /app/build/web /usr/share/nginx/html
 
 EXPOSE 80
