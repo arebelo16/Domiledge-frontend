@@ -1,5 +1,5 @@
 # Etapa 1: build da app Flutter Web
-FROM cirrusci/flutter:stable AS build
+FROM ghcr.io/cirruslabs/flutter:3.32.5 AS build
 
 WORKDIR /app
 
