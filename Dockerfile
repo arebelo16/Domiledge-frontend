@@ -1,29 +1,25 @@
-# Stage 1: Build the Flutter Web App
-FROM ghcr.io/cirruslabs/flutter:3.32.5 AS build
+# Etapa 1: build da app Flutter Web
+FROM dart:stable AS build
 
 WORKDIR /app
 
-# Copy dependency definitions and install them
+# Copiar pubspec e instalar dependências
 COPY pubspec.* ./
-RUN flutter pub get
+RUN dart pub get
 
-# Copy the rest of the application source code
+# Copiar resto da app e fazer build
 COPY . .
+RUN dart pub global activate webdev && dart pub get
+RUN flutter build web
 
-# Build the web version in release mode
-RUN flutter build web --release
-
-# Stage 2: Serve with NGINX
+# Etapa 2: servidor NGINX para servir os ficheiros
 FROM nginx:alpine
 
-# Remove the default NGINX configuration
-RUN rm /etc/nginx/conf.d/default.conf
-
-# Copy a custom NGINX config
-COPY nginx.conf /etc/nginx/conf.d
-
-# Copy the built web files from the previous stage
+# Aponta o conteúdo gerado para o diretório de HTML do nginx
 COPY --from=build /app/build/web /usr/share/nginx/html
+
+# Remove default nginx config (opcional)
+RUN rm /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
