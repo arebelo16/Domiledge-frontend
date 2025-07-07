@@ -1,5 +1,5 @@
 # Etapa 1: build da app Flutter Web
-FROM dart:stable AS build
+FROM cirrusci/flutter:stable AS build
 
 WORKDIR /app
 
