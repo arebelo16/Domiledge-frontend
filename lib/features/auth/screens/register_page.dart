@@ -14,12 +14,14 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _emailController = TextEditingController();
   final _authController = AuthController();
 
   void _register() async {
     final success = await _authController.register(
       _usernameController.text.trim(),
       _passwordController.text.trim(),
+      _emailController.text.trim(),
     );
     if (success && mounted) {
       Navigator.pushReplacementNamed(context, '/home');
@@ -48,6 +50,11 @@ class _RegisterPageState extends State<RegisterPage> {
               CustomTextField(
                 controller: _usernameController,
                 label: 'Username',
+              ),
+              const SizedBox(height: 24),
+              CustomTextField(
+                controller: _emailController,
+                label: 'Email',
               ),
               const SizedBox(height: 16),
               CustomTextField(

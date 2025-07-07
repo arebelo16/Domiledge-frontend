@@ -15,8 +15,8 @@ class AuthController {
     return false;
   }
 
-  Future<bool> register(String username, String password) async {
-    return await _api.register(RegisterRequest(username: username, password: password));
+  Future<bool> register(String username, String password, String email) async {
+    return await _api.register(RegisterRequest(username: username, password: password, email: email));
   }
 }
                            
