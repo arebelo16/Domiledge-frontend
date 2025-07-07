@@ -8,16 +8,18 @@ COPY . .
 RUN flutter pub get
 RUN flutter build web
 
-# Etapa 2: servidor NGINX
+# Etapa 2: Servidor NGINX
 FROM nginx:alpine
 
-# Apaga o default.conf do NGINX
+# Limpar config default (opcional)
 RUN rm /etc/nginx/conf.d/default.conf
 
-# Copia os ficheiros gerados para o NGINX
+# Copiar config custom
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copiar build da app Flutter para o NGINX
 COPY --from=build /app/build/web /usr/share/nginx/html
 
-# Expor a porta 80
 EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
