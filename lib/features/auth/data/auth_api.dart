@@ -24,6 +24,6 @@ class AuthApi {
 
   Future<void> logout() async {
     final response = await _http.post('${Env.apiUrl}/auth/logout');
-    if (response.statusCode == 200) log("Logout from server failed. ${response.statusMessage}");
+    if (response.statusCode != 200) log("Logout from server failed. ${response.statusMessage}");
   }
 }
