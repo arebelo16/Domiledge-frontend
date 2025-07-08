@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import '../../../config/env.dart';
 import '../../../core/services/http_services.dart';
 import '../model/auth_response.dart';
@@ -20,8 +22,8 @@ class AuthApi {
     return response.statusCode == 200;
   }
 
-  Future<bool> logout() async {
+  Future<void> logout() async {
     final response = await _http.post('${Env.apiUrl}/auth/logout');
-    return response.statusCode == 200;
+    if (response.statusCode == 200) log("Logout from server failed. ${response.statusMessage}");
   }
 }

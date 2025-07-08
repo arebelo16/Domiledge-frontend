@@ -19,7 +19,7 @@ class AuthController {
     return await _api.register(RegisterRequest(username: username, password: password, email: email));
   }
 
-  Future<bool> logout() async {
+  Future<void> logout() async {
     return await _api.logout();
   }
 }

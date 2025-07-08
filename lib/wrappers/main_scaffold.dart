@@ -20,18 +20,10 @@ class MainScaffold extends StatelessWidget {
 
       case 'logout':
         final navigator = Navigator.of(context);
-        final messenger = ScaffoldMessenger.of(context);
+        await _authController.logout();
+        await StorageService.clearToken();
 
-        final success = await _authController.logout();
-
-        if (success) {
-          await StorageService.clearToken();
-          navigator.pushReplacementNamed('/login');
-        } else {
-          messenger.showSnackBar(
-            const SnackBar(content: Text('Erro ao fazer logout')),
-          );
-        }
+        navigator.pushReplacementNamed('/login');
         break;
     }
   }
