@@ -1,5 +1,6 @@
 // lib/features/auth/screens/register_page.dart
 import 'package:flutter/material.dart';
+
 import '../../../shared/widgets/custom_button.dart';
 import '../../../shared/widgets/text_fields.dart';
 import '../controllers/auth_controller.dart';

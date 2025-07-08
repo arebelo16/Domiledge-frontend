@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../controllers/auth_controller.dart';
+
 import '../../../shared/widgets/custom_button.dart';
 import '../../../shared/widgets/text_fields.dart';
+import '../controllers/auth_controller.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
