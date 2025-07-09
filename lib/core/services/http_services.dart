@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:staywise_frontend/core/services/storage_services.dart';
+import 'package:domiledge_frontend/core/services/storage_services.dart';
 
 import '../../../config/env.dart';
 
