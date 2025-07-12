@@ -10,15 +10,25 @@ class HttpService {
     _dio.options.baseUrl = Env.apiUrl;
   }
 
-  Future<Response> post(String url, {Map<String, dynamic>? data}) async {
-    final token = await StorageService.getToken();
+  Future<Response<dynamic>> post(String url, {Map<String, dynamic>? data, bool authRequired = true}) async {
+    final token = authRequired ? await StorageService.getToken() : null;
     final headers = {
       'Content-Type': 'application/json',
       if (token != null) 'Authorization': 'Bearer $token',
     };
 
-    return _dio.post(url, data: data, options: Options(headers: headers));
+    return _dio.post(
+      url,
+      data: data,
+      options: Options(
+        headers: headers,
+        validateStatus: (status) {
+          return status != null && status < 500;
+        },
+      ),
+    );
   }
+
 
   Future<Response> get(String url) async {
     final token = await StorageService.getToken();

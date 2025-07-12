@@ -10,7 +10,11 @@ class AuthApi {
   final _http = HttpService();
 
   Future<String?> login(LoginRequest request) async {
-    final response = await _http.post('${Env.apiUrl}/auth/login', data: request.toJson());
+    final response = await _http.post(
+      '${Env.apiUrl}/auth/login',
+      data: request.toJson(),
+      authRequired: false,
+    );
     if (response.statusCode == 200) {
       return AuthResponse.fromJson(response.data).token;
     }
@@ -18,12 +22,16 @@ class AuthApi {
   }
 
   Future<bool> register(RegisterRequest request) async {
-    final response = await _http.post('${Env.apiUrl}/auth/register', data: request.toJson());
+    final response = await _http.post(
+      '${Env.apiUrl}/auth/register',
+      data: request.toJson(),
+    );
     return response.statusCode == 200;
   }
 
   Future<void> logout() async {
     final response = await _http.post('${Env.apiUrl}/auth/logout');
-    if (response.statusCode != 200) log("Logout from server failed. ${response.statusMessage}");
+    if (response.statusCode != 200)
+      log("Logout from server failed. ${response.statusMessage}");
   }
 }
