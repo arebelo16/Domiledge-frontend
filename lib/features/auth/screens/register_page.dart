@@ -23,12 +23,12 @@ class _RegisterPageState extends State<RegisterPage> {
   void _register() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final success = await _authController.register(
+    final result = await _authController.register(
       _usernameController.text.trim(),
       _passwordController.text.trim(),
       _emailController.text.trim(),
     );
-    if (success && mounted) {
+    if (result.isSuccess && mounted) {
       Navigator.pushReplacementNamed(context, '/login');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please confirm your email')),
@@ -36,7 +36,7 @@ class _RegisterPageState extends State<RegisterPage> {
     } else if (mounted) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Registration failed')));
+      ).showSnackBar(SnackBar(content: Text(result.error ?? 'Unknown error')));
     }
   }
 

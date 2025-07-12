@@ -1,3 +1,5 @@
+import 'package:domiledge_frontend/core/utils/result.dart';
+
 import '../../../core/services/storage_services.dart';
 import '../data/auth_api.dart';
 import '../model/login_request.dart';
@@ -15,7 +17,7 @@ class AuthController {
     return false;
   }
 
-  Future<bool> register(String username, String password, String email) async {
+  Future<Result<bool>> register(String username, String password, String email) async {
     return await _api.register(RegisterRequest(username: username, password: password, email: email));
   }
 
