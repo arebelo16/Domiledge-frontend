@@ -12,7 +12,7 @@ class DomiledgeApp extends StatelessWidget {
       title: 'Domiledge',
       theme: AppTheme.lightTheme,
       initialRoute: '/login',
-      routes: appRoutes,
+      routes: AppRoutes.routes,
     );
   }
 }
