@@ -1,4 +1,5 @@
 import '../../../../core/models/property_model.dart';
+import '../../utils/type_mapper.dart';
 
 class PropertyDto {
   final String id;            // UUID
@@ -6,7 +7,7 @@ class PropertyDto {
   final String address;
   final int bookings;
   final double estimatedProfit;
-  final String type;
+  final String? type;
   final String? coverUrl;
 
   PropertyDto({
@@ -37,14 +38,14 @@ class PropertyDto {
     'estimatedProfit': estimatedProfit,
     'type': type,
     if (coverUrl != null) 'coverUrl': coverUrl,
+    if (type != null) 'type': type,
   };
 
-  /// Map para o modelo de UI (mantém o design atual)
   PropertyModel asModel() => PropertyModel(
     title: title,
     address: address,
     bookings: bookings,
     estimatedProfit: estimatedProfit,
-    type: type,
+    type: TypeMapper.toPt(type),
   );
 }

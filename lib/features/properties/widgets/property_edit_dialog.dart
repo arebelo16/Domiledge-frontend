@@ -6,7 +6,7 @@ class PropertyEditResult {
   final String? location;
   final int? bookings;
   final double? estimatedProfit;
-  final String? type; // pode ser ''
+  final String? type;
   final bool deleted;
 
   PropertyEditResult({
@@ -24,7 +24,7 @@ class PropertyEditDialog extends StatefulWidget {
   final String initialLocation;
   final int initialBookings;
   final double initialEstimatedProfit;
-  final String? initialType; // pode vir null/'' do backend
+  final String? initialType;
   final Future<bool> Function() onDeletePressed;
 
   const PropertyEditDialog({
@@ -132,7 +132,7 @@ class _PropertyEditDialogState extends State<PropertyEditDialog> {
         location: _locationCtrl.text.trim(),
         bookings: bookings,
         estimatedProfit: profit,
-        type: _type?.trim() ?? '', // envia '' se não selecionado
+        type: _type?.trim() ?? '',
         deleted: false,
       ),
     );

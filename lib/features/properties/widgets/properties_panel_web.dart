@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/models/property_model.dart';
 import '../controllers/properties_controller.dart';
+import '../utils/type_mapper.dart';
 import '../widgets/add_property_button.dart';
 import '../widgets/create_property_dialog.dart';
 import '../widgets/properties_grid.dart';
@@ -109,6 +110,7 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
           address: location,
           bookings: bookings,
           estimatedProfit: estimatedProfit,
+          // passamos PT; o controller trata de mapear para EN quando envia
           type: type,
         ),
       );
@@ -229,6 +231,7 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: PropertyDetailsPanel(
+                      key: ValueKey(item.id),
                       name: item.model.title,
                       location: item.model.address,
                       bookings: item.model.bookings,
@@ -279,24 +282,43 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.apartment, size: 32, color: Colors.deepPurple.shade400),
-                const SizedBox(width: 12),
-                Text(
-                  'Gestão de Propriedades',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-              ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: LayoutBuilder(
+              builder: (context, c) {
+                final isMobile = c.maxWidth < 900;
+                return Row(
+                  mainAxisAlignment:
+                  isMobile ? MainAxisAlignment.start : MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: isMobile ? Alignment.centerLeft : Alignment.center,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.apartment,
+                                size: 32, color: Colors.deepPurple.shade400),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Gestão de Propriedades',
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.0,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
           const Divider(color: Colors.blueAccent, thickness: 1.5),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
           Expanded(
             child: _loading
@@ -366,6 +388,7 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
                       return SizedBox(
                         height: constraints.maxHeight,
                         child: PropertyDetailsPanel(
+                          key: ValueKey(_selected!.id),
                           name: m.title,
                           location: m.address,
                           bookings: m.bookings,

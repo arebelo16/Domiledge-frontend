@@ -41,7 +41,6 @@ class _PropertyDetailsPanelState extends State<PropertyDetailsPanel> {
   final ScrollController _scrollController = ScrollController();
   bool _isHoveringGraph = false;
 
-  // Estado local editável (para refletir alterações visualmente sem rebuild do parent)
   late String _name;
   late String _location;
   late int _bookings;
@@ -51,11 +50,28 @@ class _PropertyDetailsPanelState extends State<PropertyDetailsPanel> {
   @override
   void initState() {
     super.initState();
+    _syncFromWidget();
+  }
+
+  @override
+  void didUpdateWidget(covariant PropertyDetailsPanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.name != widget.name ||
+        oldWidget.location != widget.location ||
+        oldWidget.bookings != widget.bookings ||
+        oldWidget.estimatedProfit != widget.estimatedProfit ||
+        oldWidget.type != widget.type) {
+      _syncFromWidget();
+    }
+  }
+
+  void _syncFromWidget() {
     _name = widget.name;
     _location = widget.location;
     _bookings = widget.bookings;
     _estimatedProfit = widget.estimatedProfit;
     _type = widget.type;
+    if (mounted) setState(() {}); // reflect immediately
   }
 
   Future<void> _openEditDialog() async {
@@ -73,7 +89,6 @@ class _PropertyDetailsPanelState extends State<PropertyDetailsPanel> {
             final ok = await widget.onDelete!.call();
             return ok;
           }
-          // fallback visual
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Delete callback não ligado')),
           );
@@ -158,11 +173,13 @@ class _PropertyDetailsPanelState extends State<PropertyDetailsPanel> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(_name,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(fontWeight: FontWeight.bold)),
+                    Text(
+                      _name,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 12),
                     Wrap(
                       spacing: 16,
@@ -172,7 +189,7 @@ class _PropertyDetailsPanelState extends State<PropertyDetailsPanel> {
                         _infoRow('📅 Reservas este mês:', _bookings.toString()),
                         _infoRow('💸 Lucro estimado:',
                             '${_estimatedProfit.toStringAsFixed(2)}€'),
-                        _infoRow('🏷️ Tipo:', _type),
+                        _infoRow('🏷️ Tipo:', _type.isEmpty ? '—' : _type),
                       ],
                     ),
 
@@ -186,7 +203,7 @@ class _PropertyDetailsPanelState extends State<PropertyDetailsPanel> {
                         height: 200,
                         child: ProfitChart(
                           propertyKey: _name,
-                          profitsProvider: MockProfitsProvider(), // ou Http...
+                          profitsProvider: MockProfitsProvider(),
                         ),
                       ),
                     ),
@@ -210,7 +227,7 @@ class _PropertyDetailsPanelState extends State<PropertyDetailsPanel> {
 
                     PropertyCalendar(
                       propertyKey: _name,
-                      reservationsProvider: MockReservationsProvider(), // ou Http...
+                      reservationsProvider: MockReservationsProvider(),
                     ),
                     const SizedBox(height: 24),
                   ],
@@ -243,7 +260,6 @@ class _PropertyDetailsPanelState extends State<PropertyDetailsPanel> {
   }
 }
 
-// ---------- HEADER DO CALENDÁRIO RESPONSIVO ----------
 class _CalendarHeader extends StatelessWidget {
   final String title;
   final VoidCallback onManage;
