@@ -1,4 +1,4 @@
-package com.staywise.staywise_frontend;
+package com.domiledge.domiledge_frontend;
 
 import io.flutter.embedding.android.FlutterActivity;
 

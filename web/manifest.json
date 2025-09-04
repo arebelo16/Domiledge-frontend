@@ -1,6 +1,6 @@
 {
-    "name": "staywise_frontend",
-    "short_name": "staywise_frontend",
+    "name": "domiledge_frontend",
+    "short_name": "domiledge_frontend",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

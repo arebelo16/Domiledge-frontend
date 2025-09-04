@@ -30,6 +30,7 @@ migrate_working_dir/
 .flutter-plugins
 .flutter-plugins-dependencies
 .metadata
+lib/config/env.dart
 
 
 # Build output

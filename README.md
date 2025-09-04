@@ -1,6 +1,6 @@
-# StayWise Frontend
+# Domiledge Frontend
 
-Frontend submodule StayWise developed in Flutter.
+Frontend submodule Domiledge developed in Flutter.
 
 ## 🛠️ Technologies
 
