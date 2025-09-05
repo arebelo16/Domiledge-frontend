@@ -44,7 +44,7 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
         _rankById.putIfAbsent(it.id, () => _rankCounter++);
       }
 
-      list.sort((a, b) => (_rankById[a.id]! ).compareTo(_rankById[b.id]! ));
+      list.sort((a, b) => _rankById[a.id]!.compareTo(_rankById[b.id]!));
 
       setState(() {
         _items = list;
@@ -78,9 +78,7 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
 
       setState(() {
         _rankById.putIfAbsent(created.id, () => _rankCounter++);
-        _items = [..._items, created]..sort(
-              (a, b) => (_rankById[a.id]! ).compareTo(_rankById[b.id]! ),
-        );
+        _items = [..._items, created];
         _selected = created;
       });
 
@@ -129,11 +127,7 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
       setState(() {
         final idx = _items.indexWhere((e) => e.id == current.id);
         if (idx != -1) {
-          final rank = _rankById[current.id] ?? _rankCounter++;
-          _rankById[updated.id] = rank;
-
           _items[idx] = updated;
-          _items.sort((a, b) => (_rankById[a.id]! ).compareTo(_rankById[b.id]! ));
         }
         _selected = updated;
       });
@@ -297,10 +291,7 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
     final width = MediaQuery.of(context).size.width;
     final isMobile = width < 900;
 
-    final itemsOrdered = [..._items]..sort(
-          (a, b) => (_rankById[a.id] ?? 0).compareTo(_rankById[b.id] ?? 0),
-    );
-    final properties = itemsOrdered.map((e) => e.model).toList();
+    final properties = _items.map((e) => e.model).toList();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
