@@ -20,9 +20,6 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
   List<PropertyItem> _items = [];
   PropertyItem? _selected;
 
-  final Map<String, int> _rankById = <String, int>{};
-  int _rankCounter = 0;
-
   bool _loading = true;
   String? _error;
 
@@ -39,12 +36,6 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
     });
     try {
       final list = await _controller.fetchAll();
-
-      for (final it in list) {
-        _rankById.putIfAbsent(it.id, () => _rankCounter++);
-      }
-
-      list.sort((a, b) => _rankById[a.id]!.compareTo(_rankById[b.id]!));
 
       setState(() {
         _items = list;
@@ -76,30 +67,31 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
         bookings: res.bookings,
       );
 
-      setState(() {
-        _rankById.putIfAbsent(created.id, () => _rankCounter++);
-        _items = [..._items, created];
-        _selected = created;
+      if (!mounted) return;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() {
+          _items = [..._items, created];
+          _selected = created;
+        });
       });
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Propriedade criada.'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Propriedade criada.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erro a criar: $e'),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro a criar: $e'),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -149,7 +141,6 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
       await _controller.delete(current.id);
       setState(() {
         _items.removeWhere((e) => e.id == current.id);
-        _rankById.remove(current.id);
         if (_selected?.id == current.id) {
           _selected = _items.isNotEmpty ? _items.first : null;
         }
@@ -290,7 +281,6 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final isMobile = width < 900;
-
     final properties = _items.map((e) => e.model).toList();
 
     return Padding(
