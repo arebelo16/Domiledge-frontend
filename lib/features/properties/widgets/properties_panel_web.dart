@@ -68,7 +68,7 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
       );
 
       setState(() {
-        _items = [created, ..._items];
+        _items = [..._items, created];
         _selected = created;
       });
 
@@ -110,7 +110,6 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
           address: location,
           bookings: bookings,
           estimatedProfit: estimatedProfit,
-          // passamos PT; o controller trata de mapear para EN quando envia
           type: type,
         ),
       );
