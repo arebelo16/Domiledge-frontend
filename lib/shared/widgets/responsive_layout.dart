@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 
 class ResponsiveLayout extends StatelessWidget {
   final Widget mobile;
@@ -14,14 +13,15 @@ class ResponsiveLayout extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    if (kIsWeb && width >= 1024) {
-      return web;
-    } else if (width >= 600) {
-      return tablet;
-    } else {
-      return web;
-    }
-  }
+  Widget build(BuildContext context) => web;
+  // Widget build(BuildContext context) {
+  //   final width = MediaQuery.of(context).size.width;
+  //   if (kIsWeb && width >= 1024) {
+  //     return web;
+  //   } else if (width >= 600) {
+  //     return tablet;
+  //   } else {
+  //     return mobile;
+  //   }
+  // }
 }

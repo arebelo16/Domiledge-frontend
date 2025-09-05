@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-
 import '../core/services/storage_services.dart';
 import '../routes/app_routes.dart';
 import '../features/auth/controllers/auth_controller.dart';
@@ -40,27 +38,19 @@ class MainScaffold extends StatelessWidget {
 
   void _onNavTap(BuildContext context, int index) {
     if (index == selectedIndex) return;
-
     switch (index) {
-      case 0:
-        Navigator.pushReplacementNamed(context, AppRoutes.home);
-        break;
-      case 1:
-        Navigator.pushReplacementNamed(context, AppRoutes.properties);
-        break;
-      case 2:
-        Navigator.pushReplacementNamed(context, AppRoutes.account);
-        break;
+      case 0: Navigator.pushReplacementNamed(context, AppRoutes.home); break;
+      case 1: Navigator.pushReplacementNamed(context, AppRoutes.properties); break;
+      case 2: Navigator.pushReplacementNamed(context, AppRoutes.account); break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final isTablet = width >= 600 && width < 1024;
-    final isWeb = kIsWeb && width >= 1024;
+    final isNarrow = width < 1024;
 
-    if (isWeb) {
+    if (!isNarrow) {
       return Scaffold(
         backgroundColor: Colors.grey.shade200,
         body: Column(
@@ -73,15 +63,44 @@ class MainScaffold extends StatelessWidget {
     }
 
     return Scaffold(
+      drawerEnableOpenDragGesture: isNarrow,
+      drawerEdgeDragWidth:  isNarrow ? 28 : 0,
+      drawer: isNarrow ? MainDrawerMobile(onNavTap: _onNavTap) : null,
+
       appBar: AppBar(
-        title: Text(title),
-        centerTitle: isWeb,
+        backgroundColor: Colors.blue.shade400,
+        elevation: 0.5,
+        // HAMBURGER AO LADO DO LOGO
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, color: Colors.white),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+            tooltip: 'Menu',
+          ),
+        ),
+        titleSpacing: 0,
+        title: Row(
+          children: const [
+            SizedBox(width: 4),
+            Icon(Icons.apartment, color: Colors.white),
+            SizedBox(width: 8),
+            Text(
+              'Domiledge',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                letterSpacing: .3,
+              ),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
             icon: Icon(
               Theme.of(context).brightness == Brightness.dark
                   ? Icons.light_mode
                   : Icons.dark_mode,
+              color: Colors.white,
             ),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -90,36 +109,18 @@ class MainScaffold extends StatelessWidget {
             },
           ),
           PopupMenuButton<String>(
-            icon: const Icon(Icons.account_circle),
+            icon: const Icon(Icons.account_circle, color: Colors.white),
             onSelected: (value) => _handleMenuSelection(context, value),
-            itemBuilder: (BuildContext context) => [
-              PopupMenuItemIcon(
-                value: 'account',
-                icon: Icons.person,
-                text: 'My account',
-              ),
-              PopupMenuItemIcon(
-                value: 'logout',
-                icon: Icons.logout,
-                text: 'Logout',
-              ),
+            itemBuilder: (BuildContext context) => const [
+              PopupMenuItemIcon(value: 'account', icon: Icons.person, text: 'My account'),
+              PopupMenuItemIcon(value: 'logout', icon: Icons.logout, text: 'Logout'),
             ],
           ),
         ],
       ),
-      drawer: isTablet || !kIsWeb ? MainDrawerMobile(onNavTap: _onNavTap) : null,
+
       body: body,
-      bottomNavigationBar: isWeb || isTablet
-          ? null
-          : BottomNavigationBar(
-        currentIndex: selectedIndex,
-        onTap: (index) => _onNavTap(context, index),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Início'),
-          BottomNavigationBarItem(icon: Icon(Icons.apartment), label: 'Propriedades'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Conta'),
-        ],
-      ),
+      bottomNavigationBar: null,
     );
   }
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 class MainDrawerMobile extends StatelessWidget {
   final void Function(BuildContext, int) onNavTap;
-
   const MainDrawerMobile({super.key, required this.onNavTap});
 
   @override
@@ -11,11 +10,16 @@ class MainDrawerMobile extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(color: Colors.deepPurple),
-            child: Text(
-              'Domiledge Menu',
-              style: TextStyle(color: Colors.white, fontSize: 20),
+          DrawerHeader(
+            decoration: BoxDecoration(color: Colors.blue.shade400),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: const [
+                Icon(Icons.apartment, color: Colors.white, size: 24),
+                SizedBox(width: 8),
+                Text('Domiledge Menu',
+                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700)),
+              ],
             ),
           ),
           ListTile(
