@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../core/models/property_model.dart';
 import '../controllers/properties_controller.dart';
-import '../utils/type_mapper.dart';
 import '../widgets/add_property_button.dart';
 import '../widgets/create_property_dialog.dart';
 import '../widgets/properties_grid.dart';
@@ -21,6 +20,9 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
   List<PropertyItem> _items = [];
   PropertyItem? _selected;
 
+  final Map<String, int> _rankById = <String, int>{};
+  int _rankCounter = 0;
+
   bool _loading = true;
   String? _error;
 
@@ -37,6 +39,13 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
     });
     try {
       final list = await _controller.fetchAll();
+
+      for (final it in list) {
+        _rankById.putIfAbsent(it.id, () => _rankCounter++);
+      }
+
+      list.sort((a, b) => (_rankById[a.id]! ).compareTo(_rankById[b.id]! ));
+
       setState(() {
         _items = list;
         _selected ??= _items.isNotEmpty ? _items.first : null;
@@ -68,7 +77,10 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
       );
 
       setState(() {
-        _items = [..._items, created];
+        _rankById.putIfAbsent(created.id, () => _rankCounter++);
+        _items = [..._items, created]..sort(
+              (a, b) => (_rankById[a.id]! ).compareTo(_rankById[b.id]! ),
+        );
         _selected = created;
       });
 
@@ -116,7 +128,13 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
 
       setState(() {
         final idx = _items.indexWhere((e) => e.id == current.id);
-        if (idx != -1) _items[idx] = updated;
+        if (idx != -1) {
+          final rank = _rankById[current.id] ?? _rankCounter++;
+          _rankById[updated.id] = rank;
+
+          _items[idx] = updated;
+          _items.sort((a, b) => (_rankById[a.id]! ).compareTo(_rankById[b.id]! ));
+        }
         _selected = updated;
       });
     } catch (e) {
@@ -137,6 +155,7 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
       await _controller.delete(current.id);
       setState(() {
         _items.removeWhere((e) => e.id == current.id);
+        _rankById.remove(current.id);
         if (_selected?.id == current.id) {
           _selected = _items.isNotEmpty ? _items.first : null;
         }
@@ -254,9 +273,12 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
                       },
                       onDelete: () async {
                         final ok = await _deleteProperty(item);
-                        if (ok && Navigator.of(ctx).canPop()) {
-                          Navigator.of(ctx).pop(); // fecha o bottom sheet
+                        if (mounted){
+                          if (ok && Navigator.of(context).canPop()) {
+                            Navigator.of(context).pop();
+                          }
                         }
+
                         return ok;
                       },
                     ),
@@ -274,7 +296,11 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final isMobile = width < 900;
-    final properties = _items.map((e) => e.model).toList();
+
+    final itemsOrdered = [..._items]..sort(
+          (a, b) => (_rankById[a.id] ?? 0).compareTo(_rankById[b.id] ?? 0),
+    );
+    final properties = itemsOrdered.map((e) => e.model).toList();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
