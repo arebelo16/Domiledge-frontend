@@ -1,5 +1,5 @@
+// lib/features/properties/widgets/properties_panel_web.dart
 import 'package:flutter/material.dart';
-
 import '../../../core/models/property_model.dart';
 import '../controllers/properties_controller.dart';
 import '../widgets/add_property_button.dart';
@@ -9,6 +9,7 @@ import '../widgets/property_details_panel.dart';
 
 class PropertiesPanelWeb extends StatefulWidget {
   final String? initialSelectedId;
+
   const PropertiesPanelWeb({super.key, this.initialSelectedId});
 
   @override
@@ -24,10 +25,51 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
   bool _loading = true;
   String? _error;
 
+  bool _initialApplied = false;
+
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  void _applyInitialSelectionIfNeeded() {
+    if (_initialApplied || _items.isEmpty) return;
+
+    final width = MediaQuery.of(context).size.width;
+    final isMobile = width < 900;
+
+    if (!isMobile) {
+      if (widget.initialSelectedId != null) {
+        PropertyItem? m;
+        try {
+          m = _items.firstWhere((e) => e.id == widget.initialSelectedId);
+        } catch (_) {
+          m = null;
+        }
+        setState(() => _selected = m ?? _items.first);
+      } else {
+        setState(() => _selected ??= _items.first);
+      }
+    } else {
+      setState(() => _selected = null);
+
+      if (widget.initialSelectedId != null) {
+        PropertyItem? m;
+        try {
+          m = _items.firstWhere((e) => e.id == widget.initialSelectedId);
+        } catch (_) {
+          m = _items.isNotEmpty ? _items.first : null;
+        }
+        if (m != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _openDetailsBottomSheet(m!);
+          });
+        }
+      }
+    }
+
+    _initialApplied = true;
   }
 
   Future<void> _load() async {
@@ -37,23 +79,13 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
     });
     try {
       final list = await _controller.fetchAll();
-
       setState(() {
         _items = list;
-
-        if (_items.isEmpty) {
-          _selected = null;
-        } else if (widget.initialSelectedId != null) {
-          _selected = _items.firstWhere(
-                (e) => e.id == widget.initialSelectedId,
-            orElse: () => _items.first,
-          );
-        } else {
-          _selected ??= _items.first;
-        }
-
         _loading = false;
       });
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _applyInitialSelectionIfNeeded(),
+      );
     } catch (_) {
       setState(() {
         _loading = false;
@@ -61,7 +93,6 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
       });
     }
   }
-
 
   Future<void> _onAddPropertyPressed() async {
     final res = await showDialog<CreatePropertyResult>(
@@ -85,7 +116,8 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
         if (!mounted) return;
         setState(() {
           _items = [..._items, created];
-          _selected = created;
+          final isMobile = MediaQuery.of(context).size.width < 900;
+          _selected = isMobile ? null : created;
         });
       });
 
@@ -129,10 +161,9 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
 
       setState(() {
         final idx = _items.indexWhere((e) => e.id == current.id);
-        if (idx != -1) {
-          _items[idx] = updated;
-        }
-        _selected = updated;
+        if (idx != -1) _items[idx] = updated;
+        final isMobile = MediaQuery.of(context).size.width < 900;
+        _selected = isMobile ? null : updated;
       });
     } catch (e) {
       if (!mounted) return;
@@ -151,9 +182,8 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
       await _controller.delete(current.id);
       setState(() {
         _items.removeWhere((e) => e.id == current.id);
-        if (_selected?.id == current.id) {
-          _selected = _items.isNotEmpty ? _items.first : null;
-        }
+        final isMobile = MediaQuery.of(context).size.width < 900;
+        _selected = isMobile ? null : (_items.isNotEmpty ? _items.first : null);
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -183,8 +213,9 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
     final isMobile = width < 900;
 
     final found = _items.firstWhere(
-          (t) => identical(t.model, property) || t.model.title == property.title,
-      orElse: () => _items.isNotEmpty ? _items.first : PropertyItem('', property),
+      (t) => identical(t.model, property) || t.model.title == property.title,
+      orElse: () =>
+          _items.isNotEmpty ? _items.first : PropertyItem('', property),
     );
 
     if (isMobile) {
@@ -206,7 +237,9 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
             height: h * 0.92,
             decoration: BoxDecoration(
               color: Theme.of(ctx).cardColor,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
             ),
             child: Column(
               children: [
@@ -225,7 +258,9 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
                     children: [
                       Text(
                         'Detalhes',
-                        style: Theme.of(ctx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                        style: Theme.of(ctx).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const Spacer(),
                       IconButton(
@@ -246,28 +281,27 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
                       bookings: item.model.bookings,
                       estimatedProfit: item.model.estimatedProfit,
                       type: item.model.type,
-                      onUpdate: ({
-                        required name,
-                        required location,
-                        required bookings,
-                        required estimatedProfit,
-                        required type,
-                      }) async {
-                        await _updateProperty(
-                          current: item,
-                          name: name,
-                          location: location,
-                          bookings: bookings,
-                          estimatedProfit: estimatedProfit,
-                          type: type,
-                        );
-                      },
+                      onUpdate:
+                          ({
+                            required name,
+                            required location,
+                            required bookings,
+                            required estimatedProfit,
+                            required type,
+                          }) async {
+                            await _updateProperty(
+                              current: item,
+                              name: name,
+                              location: location,
+                              bookings: bookings,
+                              estimatedProfit: estimatedProfit,
+                              type: type,
+                            );
+                          },
                       onDelete: () async {
                         final ok = await _deleteProperty(item);
-                        if (mounted) {
-                          if (ok && Navigator.of(context).canPop()) {
-                            Navigator.of(context).pop();
-                          }
+                        if (mounted && ok && Navigator.of(context).canPop()) {
+                          Navigator.of(context).pop();
                         }
                         return ok;
                       },
@@ -299,23 +333,32 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
               builder: (context, c) {
                 final isMobile = c.maxWidth < 900;
                 return Row(
-                  mainAxisAlignment: isMobile ? MainAxisAlignment.start : MainAxisAlignment.center,
+                  mainAxisAlignment: isMobile
+                      ? MainAxisAlignment.start
+                      : MainAxisAlignment.center,
                   children: [
                     Expanded(
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        alignment: isMobile ? Alignment.centerLeft : Alignment.center,
+                        alignment: isMobile
+                            ? Alignment.centerLeft
+                            : Alignment.center,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.apartment, size: 32, color: Colors.deepPurple.shade400),
+                            Icon(
+                              Icons.apartment,
+                              size: 32,
+                              color: Colors.deepPurple.shade400,
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               'Gestão de Propriedades',
-                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1.0,
-                              ),
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.0,
+                                  ),
                             ),
                           ],
                         ),
@@ -335,95 +378,103 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
                 ? Center(child: Text(_error!))
                 : isMobile
                 ? Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: AddPropertyButton(onPressed: _onAddPropertyPressed),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: PropertiesGrid(
-                    onSelect: _selectProperty,
-                    selectedProperty: _selected?.model,
-                    properties: properties,
-                  ),
-                ),
-              ],
-            )
-                : Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Flexible(
-                  flex: 2,
-                  child: Column(
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: SizedBox(
                           width: double.infinity,
-                          child: AddPropertyButton(onPressed: _onAddPropertyPressed),
+                          child: AddPropertyButton(
+                            onPressed: _onAddPropertyPressed,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
                       Expanded(
                         child: PropertiesGrid(
                           onSelect: _selectProperty,
-                          selectedProperty: _selected?.model,
+                          selectedProperty: null,
                           properties: properties,
                         ),
                       ),
                     ],
-                  ),
-                ),
-                const SizedBox(width: 32),
-                Flexible(
-                  flex: 4,
-                  child: _selected == null
-                      ? const Center(
-                    child: Text(
-                      'Seleciona uma propriedade para ver os detalhes',
-                      style: TextStyle(fontSize: 16),
-                    ),
                   )
-                      : LayoutBuilder(
-                    builder: (context, constraints) {
-                      final m = _selected!.model;
-                      return SizedBox(
-                        height: constraints.maxHeight,
-                        child: PropertyDetailsPanel(
-                          key: ValueKey(_selected!.id),
-                          name: m.title,
-                          location: m.address,
-                          bookings: m.bookings,
-                          estimatedProfit: m.estimatedProfit,
-                          type: m.type,
-                          onUpdate: ({
-                            required name,
-                            required location,
-                            required bookings,
-                            required estimatedProfit,
-                            required type,
-                          }) async {
-                            await _updateProperty(
-                              current: _selected!,
-                              name: name,
-                              location: location,
-                              bookings: bookings,
-                              estimatedProfit: estimatedProfit,
-                              type: type,
-                            );
-                          },
-                          onDelete: () => _deleteProperty(_selected!),
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Flexible(
+                        flex: 2,
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: AddPropertyButton(
+                                  onPressed: _onAddPropertyPressed,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Expanded(
+                              child: PropertiesGrid(
+                                onSelect: _selectProperty,
+                                selectedProperty: _selected?.model,
+                                properties: properties,
+                              ),
+                            ),
+                          ],
                         ),
-                      );
-                    },
+                      ),
+                      const SizedBox(width: 32),
+                      Flexible(
+                        flex: 4,
+                        child: _selected == null
+                            ? const Center(
+                                child: Text(
+                                  'Seleciona uma propriedade para ver os detalhes',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              )
+                            : LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final m = _selected!.model;
+                                  return SizedBox(
+                                    height: constraints.maxHeight,
+                                    child: PropertyDetailsPanel(
+                                      key: ValueKey(_selected!.id),
+                                      name: m.title,
+                                      location: m.address,
+                                      bookings: m.bookings,
+                                      estimatedProfit: m.estimatedProfit,
+                                      type: m.type,
+                                      onUpdate:
+                                          ({
+                                            required name,
+                                            required location,
+                                            required bookings,
+                                            required estimatedProfit,
+                                            required type,
+                                          }) async {
+                                            await _updateProperty(
+                                              current: _selected!,
+                                              name: name,
+                                              location: location,
+                                              bookings: bookings,
+                                              estimatedProfit: estimatedProfit,
+                                              type: type,
+                                            );
+                                          },
+                                      onDelete: () =>
+                                          _deleteProperty(_selected!),
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
           ),
         ],
       ),
