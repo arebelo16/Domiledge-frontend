@@ -46,6 +46,9 @@ class _WebDropdownMenuState extends State<WebDropdownMenu> {
       Navigator.of(context).pushReplacementNamed(AppRoutes.properties);
     }
 
+    if (selected == 'Perfil') {
+      Navigator.of(context).pushReplacementNamed(AppRoutes.account);
+    }
 
     if (selected != null) {
       ScaffoldMessenger.of(context).showSnackBar(

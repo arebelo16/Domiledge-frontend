@@ -1,6 +1,3 @@
-import 'dart:developer';
-
-import '../../../config/env.dart';
 import '../../../core/services/http_services.dart';
 import '../../../core/utils/result.dart';
 import '../model/auth_response.dart';
@@ -11,39 +8,33 @@ class AuthApi {
   final _http = HttpService();
 
   Future<String?> login(LoginRequest request) async {
-    final response = await _http.post(
-      '${Env.apiUrl}/auth/login',
+    final res = await _http.post(
+      '/auth/login',
       data: request.toJson(),
       authRequired: false,
     );
-    if (response.statusCode == 200) {
-      return AuthResponse.fromJson(response.data).token;
-    }
+    if (res.statusCode == 200) return AuthResponse.fromJson(res.data).token;
     return null;
   }
 
   Future<Result<bool>> register(RegisterRequest request) async {
     try {
-      final response = await _http.post(
-        '${Env.apiUrl}/auth/register',
+      final res = await _http.post(
+        '/auth/register',
         data: request.toJson(),
         authRequired: false,
       );
-
-      if (response.statusCode == 200) {
-        return Result.success(true);
-      } else {
-        final error = response.data['error'] ?? 'Unknown error';
-        return Result.failure(error);
-      }
-    } catch (e) {
+      if (res.statusCode == 200) return Result.success(true);
+      final error = res.data is Map
+          ? (res.data['error'] ?? 'Unknown error')
+          : 'Unknown error';
+      return Result.failure(error);
+    } catch (_) {
       return Result.failure('Network error');
     }
   }
 
   Future<void> logout() async {
-    final response = await _http.post('${Env.apiUrl}/auth/logout');
-    if (response.statusCode != 200)
-      log("Logout from server failed. ${response.statusMessage}");
+    await _http.post('/auth/logout', authRequired: true);
   }
 }

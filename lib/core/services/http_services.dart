@@ -1,78 +1,103 @@
 import 'package:dio/dio.dart';
 import 'package:domiledge_frontend/core/services/storage_services.dart';
-
-import '../../../config/env.dart';
+import '../../config/env.dart';
+import 'package:flutter/foundation.dart';
 
 class HttpService {
-  final Dio _dio = Dio();
+  final Dio _dio;
 
-  HttpService() {
-    _dio.options.baseUrl = Env.apiUrl;
+  HttpService._(this._dio);
+
+  factory HttpService() {
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: Env.apiUrl,
+        connectTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(seconds: 30),
+        responseType: ResponseType.json,
+        validateStatus: (s) => s != null && s < 500,
+      ),
+    );
+
+    dio.interceptors.add(
+      LogInterceptor(
+        request: true,
+        requestBody: true,
+        responseBody: false,
+        error: true,
+        logPrint: (o) {
+          if (kDebugMode) debugPrint(o.toString());
+        },
+      ),
+    );
+
+    return HttpService._(dio);
   }
 
-  Future<Response<dynamic>> post(String url, {Map<String, dynamic>? data, bool authRequired = true}) async {
-    final token = authRequired ? await StorageService.getToken() : null;
-    final headers = {
-      'Content-Type': 'application/json',
-      if (token != null) 'Authorization': 'Bearer $token',
-    };
-
-    return _dio.post(
-      url,
-      data: data,
-      options: Options(
-        headers: headers,
-        validateStatus: (status) => status != null && status < 500,
-      ),
+  Future<Response> get(String path, {bool authRequired = true}) async {
+    return _dio.get(
+      path,
+      options: Options(headers: await _headers(authRequired)),
     );
   }
 
-  Future<Response<dynamic>> get(String url, {bool authRequired = true}) async {
-    final token = authRequired ? await StorageService.getToken() : null;
-    final headers = {
-      if (token != null) 'Authorization': 'Bearer $token',
-    };
-    return _dio.get(url, options: Options(headers: headers));
+  Future<Response> post(
+    String path, {
+    dynamic data,
+    bool authRequired = true,
+  }) async {
+    return _dio.post(
+      path,
+      data: data,
+      options: Options(headers: await _headers(authRequired)),
+    );
   }
 
-  Future<Response<dynamic>> put(String url, {Map<String, dynamic>? data}) async {
-    final token = await StorageService.getToken();
-    final headers = {
-      'Content-Type': 'application/json',
-      if (token != null) 'Authorization': 'Bearer $token',
-    };
-    return _dio.put(url, data: data, options: Options(headers: headers));
+  Future<Response> put(
+    String path, {
+    dynamic data,
+    bool authRequired = true,
+  }) async {
+    return _dio.put(
+      path,
+      data: data,
+      options: Options(headers: await _headers(authRequired)),
+    );
   }
 
-  Future<Response<dynamic>> delete(String url) async {
-    final token = await StorageService.getToken();
-    final headers = {
-      if (token != null) 'Authorization': 'Bearer $token',
-    };
-    return _dio.delete(url, options: Options(headers: headers));
+  Future<Response> delete(String path, {bool authRequired = true}) async {
+    return _dio.delete(
+      path,
+      options: Options(headers: await _headers(authRequired)),
+    );
   }
 
-  /// Multipart upload (ex.: cover image)
-  Future<Response<dynamic>> postMultipart(
-      String url, {
-        required String fieldName,
-        required String filePath,
-        Map<String, String>? fields,
-      }) async {
-    final token = await StorageService.getToken();
-    final headers = {
-      if (token != null) 'Authorization': 'Bearer $token',
-    };
-
+  Future<Response> postMultipart(
+    String path, {
+    required String fieldName,
+    required String filePath,
+    Map<String, String>? fields,
+  }) async {
     final form = FormData.fromMap({
       if (fields != null) ...fields,
       fieldName: await MultipartFile.fromFile(filePath),
     });
-
     return _dio.post(
-      url,
+      path,
       data: form,
-      options: Options(headers: headers, contentType: 'multipart/form-data'),
+      options: Options(
+        headers: await _headers(true),
+        contentType: 'multipart/form-data',
+      ),
     );
+  }
+
+  Future<Map<String, String>> _headers(bool authRequired) async {
+    final headers = <String, String>{'Content-Type': 'application/json'};
+    if (authRequired) {
+      final token = await StorageService.getToken();
+      if (token != null) headers['Authorization'] = 'Bearer $token';
+    }
+    return headers;
   }
 }

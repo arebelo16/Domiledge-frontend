@@ -1,6 +1,3 @@
-import 'package:dio/dio.dart';
-
-import '../../../config/env.dart';
 import '../../../core/services/http_services.dart';
 import 'dto/property_dto.dart';
 
@@ -8,47 +5,48 @@ class PropertiesApi {
   final _http = HttpService();
 
   Future<List<PropertyDto>> getAll() async {
-    final Response res = await _http.get('${Env.apiUrl}/api/properties');
-    _ensureOk(res);
-    final list = (res.data as List).cast<Map<String, dynamic>>();
-    return list.map(PropertyDto.fromJson).toList();
+    final r = await _http.get('/properties');
+    if (r.statusCode == 200) {
+      return (r.data as List)
+          .cast<Map<String, dynamic>>()
+          .map(PropertyDto.fromJson)
+          .toList();
+    }
+    throw Exception('HTTP ${r.statusCode}: ${r.data}');
   }
 
   Future<PropertyDto> create(PropertyDto dto) async {
-    final body = dto.toJson()..remove('id'); // server gera o id
-    final Response res =
-    await _http.post('${Env.apiUrl}/api/properties', data: body);
-    _ensureOk(res);
-    return PropertyDto.fromJson(res.data as Map<String, dynamic>);
+    final r = await _http.post(
+      '/properties',
+      data: (dto.toJson()..remove('id')),
+    );
+    if (r.statusCode == 200 || r.statusCode == 201) {
+      return PropertyDto.fromJson(Map<String, dynamic>.from(r.data));
+    }
+    throw Exception('HTTP ${r.statusCode}: ${r.data}');
   }
 
   Future<PropertyDto> update(String id, PropertyDto dto) async {
-    final Response res = await _http.put(
-      '${Env.apiUrl}/api/properties/$id',
-      data: dto.toJson(),
-    );
-    _ensureOk(res);
-    return PropertyDto.fromJson(res.data as Map<String, dynamic>);
+    final r = await _http.put('/properties/$id', data: dto.toJson());
+    if (r.statusCode == 200) {
+      return PropertyDto.fromJson(Map<String, dynamic>.from(r.data));
+    }
+    throw Exception('HTTP ${r.statusCode}: ${r.data}');
   }
 
   Future<void> delete(String id) async {
-    final Response res = await _http.delete('${Env.apiUrl}/api/properties/$id');
-    _ensureOk(res);
+    final r = await _http.delete('/properties/$id');
+    if (r.statusCode == 200 || r.statusCode == 204) return;
+    throw Exception('HTTP ${r.statusCode}: ${r.data}');
   }
 
   Future<String> uploadCover(String id, String filePath) async {
-    final Response res = await _http.postMultipart(
-      '${Env.apiUrl}/api/properties/$id/upload-cover',
-      fieldName: 'file', // nome do campo no teu controller
+    final r = await _http.postMultipart(
+      '/properties/$id/upload-cover',
+      fieldName: 'file',
       filePath: filePath,
     );
-    _ensureOk(res);
-    return res.data.toString();
-  }
-
-  void _ensureOk(Response r) {
-    if (r.statusCode == null || r.statusCode! < 200 || r.statusCode! >= 300) {
-      throw Exception('HTTP ${r.statusCode}: ${r.data}');
-    }
+    if (r.statusCode == 200) return r.data.toString();
+    throw Exception('HTTP ${r.statusCode}: ${r.data}');
   }
 }

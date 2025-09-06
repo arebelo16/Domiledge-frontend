@@ -1,3 +1,4 @@
+import 'package:domiledge_frontend/features/account/screens/profile_page.dart';
 import 'package:domiledge_frontend/features/properties/screens/properties_page.dart';
 import 'package:domiledge_frontend/features/properties/widgets/properties_panel_web.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ class AppRoutes {
     login: (_) => const LoginPage(),
     register: (_) => const RegisterPage(),
     home: (_) => const HomePage(),
-    properties: (_) => const PropertiesPage()
+    properties: (_) => const PropertiesPage(),
+    account: (_) => const ProfilePage()
   };
 }
