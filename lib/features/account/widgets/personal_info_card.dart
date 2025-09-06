@@ -4,14 +4,12 @@ import 'section_card.dart';
 
 class PersonalInfoCard extends StatefulWidget {
   final UserProfile profile;
-  final bool saving;
-  final Future<void> Function(UserProfile) onSave;
+  final Future<void> Function(UserProfile) onSaved;
 
   const PersonalInfoCard({
     super.key,
     required this.profile,
-    required this.saving,
-    required this.onSave,
+    required this.onSaved,
   });
 
   @override
@@ -25,47 +23,54 @@ class _PersonalInfoCardState extends State<PersonalInfoCard> {
   @override
   void initState() {
     super.initState();
-    name = widget.profile.name;
-    phone = widget.profile.phone ?? '';
-    country = widget.profile.country ?? '';
-    city = widget.profile.city ?? '';
-    address = widget.profile.address ?? '';
+    final p = widget.profile;
+    name = p.name;
+    phone = p.phone ?? '';
+    country = p.country ?? '';
+    city = p.city ?? '';
+    address = p.address ?? '';
   }
 
   @override
   Widget build(BuildContext context) {
     return SectionCard(
+      icon: Icons.person_outline,
       title: 'Informação Pessoal',
       subtitle: 'Dados básicos e contactos.',
       child: Form(
         key: _form,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Column(
           children: [
-            _field('Nome', initial: name, onSaved: (v) => name = v!, validator: _req),
-            _field('Telemóvel', initial: phone, onSaved: (v) => phone = v ?? ''),
+            _f('Nome', name, (v) => name = v ?? ''),
+            const SizedBox(height: 10),
+            _f('Telemóvel', phone, (v) => phone = v ?? ''),
+            const SizedBox(height: 10),
             Row(
               children: [
-                Expanded(child: _field('País', initial: country, onSaved: (v) => country = v ?? '')),
-                const SizedBox(width: 12),
-                Expanded(child: _field('Cidade', initial: city, onSaved: (v) => city = v ?? '')),
+                Expanded(child: _f('País', country, (v) => country = v ?? '')),
+                const SizedBox(width: 10),
+                Expanded(child: _f('Cidade', city, (v) => city = v ?? '')),
               ],
             ),
-            _field('Morada', initial: address, onSaved: (v) => address = v ?? ''),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
+            _f('Morada', address, (v) => address = v ?? ''),
+            const SizedBox(height: 12),
             Align(
               alignment: Alignment.centerRight,
               child: FilledButton.icon(
-                onPressed: widget.saving ? null : () async {
-                  if (!_form.currentState!.validate()) return;
-                  _form.currentState!.save();
-                  await widget.onSave(widget.profile.copyWith(
-                    name: name, phone: phone, country: country, city: city, address: address,
-                  ));
+                icon: const Icon(Icons.save_rounded, size: 18),
+                onPressed: () async {
+                  _form.currentState?.save();
+                  await widget.onSaved(
+                    widget.profile.copyWith(
+                      name: name,
+                      phone: phone,
+                      country: country,
+                      city: city,
+                      address: address,
+                    ),
+                  );
                 },
-                icon: widget.saving
-                    ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Icon(Icons.save),
                 label: const Text('Guardar'),
               ),
             ),
@@ -75,14 +80,14 @@ class _PersonalInfoCardState extends State<PersonalInfoCard> {
     );
   }
 
-  String? _req(String? v) => (v == null || v.trim().isEmpty) ? 'Obrigatório' : null;
-
-  Widget _field(String label, {String? initial, FormFieldSetter<String>? onSaved, String? Function(String?)? validator}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: TextFormField(
-        initialValue: initial, validator: validator, onSaved: onSaved,
-        decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
+  Widget _f(String label, String initial, FormFieldSetter<String> onSaved) {
+    return TextFormField(
+      initialValue: initial,
+      onSaved: onSaved,
+      decoration: const InputDecoration(
+        labelText: '', // labels subtis (mantém o look atual)
+        border: OutlineInputBorder(),
+        isDense: true,
       ),
     );
   }

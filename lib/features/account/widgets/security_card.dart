@@ -1,65 +1,85 @@
 import 'package:flutter/material.dart';
 import 'section_card.dart';
 
-class SecurityCard extends StatefulWidget {
-  final bool twoFA;
+class SecurityCard extends StatelessWidget {
+  final bool is2FAEnabled;
   final Future<void> Function(bool) onToggle2FA;
-  final Future<void> Function(String, String) onChangePassword;
+  final Future<void> Function(String current, String next) onChangePassword;
 
   const SecurityCard({
     super.key,
-    required this.twoFA,
+    required this.is2FAEnabled,
     required this.onToggle2FA,
     required this.onChangePassword,
   });
 
   @override
-  State<SecurityCard> createState() => _SecurityCardState();
-}
-
-class _SecurityCardState extends State<SecurityCard> {
-  final _curr = TextEditingController();
-  final _next = TextEditingController();
-  final _conf = TextEditingController();
-
-  @override
-  void dispose() {
-    _curr.dispose(); _next.dispose(); _conf.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final curr = TextEditingController();
+    final next = TextEditingController();
+    final conf = TextEditingController();
+
     return SectionCard(
+      icon: Icons.shield,
       title: 'Segurança',
       subtitle: 'Protege a tua conta.',
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SwitchListTile(
+          // 2FA switch explícito
+          SwitchListTile.adaptive(
+            value: is2FAEnabled,
+            onChanged: onToggle2FA,
             title: const Text('Autenticação de dois fatores (2FA)'),
-            subtitle: Text(widget.twoFA ? 'Ativo' : 'Inativo'),
-            value: widget.twoFA,
-            onChanged: (v) => widget.onToggle2FA(v),
+            subtitle: Text(is2FAEnabled ? 'Ativo' : 'Inativo'),
+            contentPadding: EdgeInsets.zero,
+            secondary: const Icon(Icons.qr_code_2),
           ),
-          const Divider(),
-          Align(alignment: Alignment.centerLeft, child:
-          Text('Alterar palavra-passe', style: Theme.of(context).textTheme.titleSmall)),
+          const Divider(height: 24),
+          Text(
+            'Alterar palavra-passe',
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
           const SizedBox(height: 8),
-          _pwd(_curr, 'Password atual'),
-          const SizedBox(height: 8),
-          _pwd(_next, 'Nova password'),
-          const SizedBox(height: 8),
-          _pwd(_conf, 'Confirmar password'),
-          const SizedBox(height: 8),
+          TextField(
+            controller: curr,
+            obscureText: true,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Password atual',
+              isDense: true,
+            ),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: next,
+            obscureText: true,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Nova password',
+              isDense: true,
+            ),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: conf,
+            obscureText: true,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Confirmar password',
+              isDense: true,
+            ),
+          ),
+          const SizedBox(height: 12),
           Align(
             alignment: Alignment.centerRight,
             child: OutlinedButton.icon(
-              onPressed: () {
-                if (_next.text.isEmpty || _next.text != _conf.text) return;
-                widget.onChangePassword(_curr.text, _next.text);
-                _curr.clear(); _next.clear(); _conf.clear();
-              },
               icon: const Icon(Icons.lock_reset),
+              onPressed: () {
+                if (next.text.isNotEmpty && next.text == conf.text) {
+                  onChangePassword(curr.text, next.text);
+                }
+              },
               label: const Text('Alterar'),
             ),
           ),
@@ -67,8 +87,4 @@ class _SecurityCardState extends State<SecurityCard> {
       ),
     );
   }
-
-  Widget _pwd(TextEditingController c, String label) =>
-      TextField(controller: c, obscureText: true,
-          decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()));
 }

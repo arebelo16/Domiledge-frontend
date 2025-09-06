@@ -89,16 +89,12 @@ class AccountController {
     return list.map(_mapSession).toList();
   }
 
-  Future<void> revokeSession(ActiveSession s) =>
-      _api.revokeSession(s.id);
+  Future<void> revokeSession(ActiveSession s) => _api.revokeSession(s.id);
 
   Future<void> exportData() => _api.exportData();
+
   Future<void> deleteAccount() => _api.deleteAccount();
 
-  ActiveSession _mapSession(ActiveSessionDto d) => ActiveSession(
-    id: d.id,
-    device: d.device,
-    ip: d.ip,
-    lastSeen: d.lastSeen,
-  );
+  ActiveSession _mapSession(ActiveSessionDto d) =>
+      ActiveSession(id: d.id, device: d.device, ip: d.ip, lastSeen: d.lastSeen);
 }

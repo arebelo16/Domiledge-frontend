@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/login',
       routes: AppRoutes.routes,
+      onGenerateRoute: AppRoutes.onGenerateRoute,
     );
   }
 }

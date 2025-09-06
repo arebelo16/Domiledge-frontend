@@ -4,8 +4,15 @@ import 'section_card.dart';
 
 class SessionsCard extends StatefulWidget {
   final Future<List<ActiveSession>> Function() loader;
-  final Future<void> Function(ActiveSession) onRevoke;
-  const SessionsCard({super.key, required this.loader, required this.onRevoke});
+  final Future<void> Function(ActiveSession) revoke;
+  final bool dense;
+
+  const SessionsCard({
+    super.key,
+    required this.loader,
+    required this.revoke,
+    this.dense = false,
+  });
 
   @override
   State<SessionsCard> createState() => _SessionsCardState();
@@ -23,40 +30,48 @@ class _SessionsCardState extends State<SessionsCard> {
   @override
   Widget build(BuildContext context) {
     return SectionCard(
+      dense: widget.dense,
+      icon: Icons.devices_other,
       title: 'Sessões Ativas',
-      subtitle: 'Gestão de devices ligados.',
       child: FutureBuilder<List<ActiveSession>>(
         future: _f,
         builder: (context, s) {
-          if (s.connectionState != ConnectionState.done) {
-            return const Padding(padding: EdgeInsets.all(12), child: LinearProgressIndicator());
-          }
-          final list = s.data ?? const <ActiveSession>[];
-          if (list.isEmpty) {
-            return const ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.info_outline),
-              title: Text('Sem sessões ativas.'),
-            );
-          }
+          if (!s.hasData) return const LinearProgressIndicator();
+          final list = s.data!;
+          if (list.isEmpty) return const Text('Sem sessões ativas.');
           return Column(
-            children: list.map((e) => ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.devices_other),
-              title: Text(e.device),
-              subtitle: Text('${e.ip} • ${_fmt(e.lastSeen)}'),
-              trailing: TextButton(
-                onPressed: () async { await widget.onRevoke(e); setState(() => _f = widget.loader()); },
-                child: const Text('Revogar'),
-              ),
-            )).toList(),
+            children: list.map((e) {
+              return ListTile(
+                dense: true,
+                minVerticalPadding: 0,
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.laptop_mac, size: 20),
+                title: Text(
+                  e.device,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: Text(
+                  '${e.ip} • ${_fmt(e.lastSeen)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing: TextButton(
+                  onPressed: () async {
+                    await widget.revoke(e);
+                    setState(() => _f = widget.loader());
+                  },
+                  child: const Text('Revogar'),
+                ),
+              );
+            }).toList(),
           );
         },
       ),
     );
   }
 
-  String _fmt(DateTime d) =>
-      '${d.day.toString().padLeft(2,'0')}/${d.month.toString().padLeft(2,'0')}/${d.year} '
-          '${d.hour.toString().padLeft(2,'0')}:${d.minute.toString().padLeft(2,'0')}';
+  static String _fmt(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year} '
+      '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
 }

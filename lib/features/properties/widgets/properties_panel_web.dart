@@ -8,7 +8,8 @@ import '../widgets/properties_grid.dart';
 import '../widgets/property_details_panel.dart';
 
 class PropertiesPanelWeb extends StatefulWidget {
-  const PropertiesPanelWeb({super.key});
+  final String? initialSelectedId;
+  const PropertiesPanelWeb({super.key, this.initialSelectedId});
 
   @override
   State<PropertiesPanelWeb> createState() => _PropertiesPanelWebState();
@@ -39,7 +40,18 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
 
       setState(() {
         _items = list;
-        _selected ??= _items.isNotEmpty ? _items.first : null;
+
+        if (_items.isEmpty) {
+          _selected = null;
+        } else if (widget.initialSelectedId != null) {
+          _selected = _items.firstWhere(
+                (e) => e.id == widget.initialSelectedId,
+            orElse: () => _items.first,
+          );
+        } else {
+          _selected ??= _items.first;
+        }
+
         _loading = false;
       });
     } catch (_) {
@@ -50,7 +62,7 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
     }
   }
 
-  // ------------------- CREATE -------------------
+
   Future<void> _onAddPropertyPressed() async {
     final res = await showDialog<CreatePropertyResult>(
       context: context,
@@ -95,7 +107,6 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
     }
   }
 
-  // ------------------- UPDATE -------------------
   Future<void> _updateProperty({
     required PropertyItem current,
     required String name,
@@ -135,7 +146,6 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
     }
   }
 
-  // ------------------- DELETE -------------------
   Future<bool> _deleteProperty(PropertyItem current) async {
     try {
       await _controller.delete(current.id);
@@ -168,7 +178,6 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
     }
   }
 
-  // ------------------- SELECT -------------------
   void _selectProperty(PropertyModel property) {
     final width = MediaQuery.of(context).size.width;
     final isMobile = width < 900;
@@ -216,10 +225,7 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
                     children: [
                       Text(
                         'Detalhes',
-                        style: Theme.of(ctx)
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(fontWeight: FontWeight.bold),
+                        style: Theme.of(ctx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       const Spacer(),
                       IconButton(
@@ -258,12 +264,11 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
                       },
                       onDelete: () async {
                         final ok = await _deleteProperty(item);
-                        if (mounted){
+                        if (mounted) {
                           if (ok && Navigator.of(context).canPop()) {
                             Navigator.of(context).pop();
                           }
                         }
-
                         return ok;
                       },
                     ),
@@ -294,8 +299,7 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
               builder: (context, c) {
                 final isMobile = c.maxWidth < 900;
                 return Row(
-                  mainAxisAlignment:
-                  isMobile ? MainAxisAlignment.start : MainAxisAlignment.center,
+                  mainAxisAlignment: isMobile ? MainAxisAlignment.start : MainAxisAlignment.center,
                   children: [
                     Expanded(
                       child: FittedBox(
@@ -304,8 +308,7 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.apartment,
-                                size: 32, color: Colors.deepPurple.shade400),
+                            Icon(Icons.apartment, size: 32, color: Colors.deepPurple.shade400),
                             const SizedBox(width: 8),
                             Text(
                               'Gestão de Propriedades',
@@ -325,7 +328,6 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
           ),
           const Divider(color: Colors.blueAccent, thickness: 1.5),
           const SizedBox(height: 16),
-
           Expanded(
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
@@ -362,9 +364,7 @@ class _PropertiesPanelWebState extends State<PropertiesPanelWeb> {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: SizedBox(
                           width: double.infinity,
-                          child: AddPropertyButton(
-                            onPressed: _onAddPropertyPressed,
-                          ),
+                          child: AddPropertyButton(onPressed: _onAddPropertyPressed),
                         ),
                       ),
                       const SizedBox(height: 16),

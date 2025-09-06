@@ -5,16 +5,16 @@ class BillingCard extends StatefulWidget {
   final String plan;
   final String? vat;
   final String? company;
-  final bool saving;
   final Future<void> Function(String? vat, String? company) onSave;
+  final bool dense;
 
   const BillingCard({
     super.key,
     required this.plan,
     required this.vat,
     required this.company,
-    required this.saving,
     required this.onSave,
+    this.dense = false,
   });
 
   @override
@@ -34,31 +34,44 @@ class _BillingCardState extends State<BillingCard> {
   @override
   Widget build(BuildContext context) {
     return SectionCard(
+      dense: widget.dense,
+      icon: Icons.receipt_long_outlined,
       title: 'Faturação & Plano',
-      subtitle: 'Dados para faturação e recibos.',
       child: Column(
         children: [
           Row(
             children: [
-              Expanded(child: TextFormField(
-                initialValue: vat, onChanged: (v) => vat = v,
-                decoration: const InputDecoration(labelText: 'NIF/VAT', border: OutlineInputBorder()),
-              )),
-              const SizedBox(width: 12),
-              Expanded(child: TextFormField(
-                initialValue: company, onChanged: (v) => company = v,
-                decoration: const InputDecoration(labelText: 'Empresa', border: OutlineInputBorder()),
-              )),
+              Expanded(
+                child: TextFormField(
+                  initialValue: vat,
+                  onChanged: (v) => vat = v,
+                  decoration: const InputDecoration(
+                    labelText: 'NIF/VAT',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextFormField(
+                  initialValue: company,
+                  onChanged: (v) => company = v,
+                  decoration: const InputDecoration(
+                    labelText: 'Empresa',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Align(
             alignment: Alignment.centerRight,
             child: FilledButton.icon(
-              onPressed: widget.saving ? null : () => widget.onSave(vat, company),
-              icon: widget.saving
-                  ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.save),
+              icon: const Icon(Icons.save_rounded, size: 18),
+              onPressed: () => widget.onSave(vat, company),
               label: const Text('Guardar'),
             ),
           ),
