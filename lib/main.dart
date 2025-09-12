@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'routes/app_routes.dart';
 
 void main() {
+  usePathUrlStrategy();
   runApp(const MyApp());
 }
 
