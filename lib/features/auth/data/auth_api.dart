@@ -1,19 +1,36 @@
-import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
-import 'package:web/web.dart' as web;
+import 'package:http/browser_client.dart' show BrowserClient;
 import '../../../config/env.dart';
 
 class AuthApi {
   AuthApi._();
 
-  static final http.Client _client = http.Client();
+  static final http.Client _client = kIsWeb
+      ? (BrowserClient()..withCredentials = true)
+      : http.Client();
 
   static String get _base => Env.apiUrl;
 
-  static Uri _u(String path) => Uri.parse('$_base$path');
+  static Uri _u(String p) => Uri.parse('$_base$p');
+
+  static Future<String?> _fetchCsrfToken() async {
+    try {
+      final res = await _client
+          .get(_u('/auth/csrf'))
+          .timeout(const Duration(seconds: 8));
+      if (res.statusCode == 200) {
+        final m = jsonDecode(res.body) as Map<String, dynamic>;
+        return m['token'] as String?;
+      }
+    } catch (_) {}
+    return null;
+  }
 
   static Future<bool> login(String email, String password) async {
-    await _prefetchCsrf();
+    final token =
+        await _fetchCsrfToken();
 
     final body =
         'email=${Uri.encodeQueryComponent(email)}&password=${Uri.encodeQueryComponent(password)}';
@@ -22,11 +39,10 @@ class AuthApi {
       _u('/auth/login'),
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        ..._csrfHeaderIfPresent(),
+        if (token != null) 'X-XSRF-TOKEN': token,
       },
       body: body,
     );
-
     return res.statusCode == 200;
   }
 
@@ -42,42 +58,10 @@ class AuthApi {
   }
 
   static Future<void> logout() async {
-    await _prefetchCsrf();
-    final res = await _client.post(
+    final token = await _fetchCsrfToken();
+    await _client.post(
       _u('/auth/logout'),
-      headers: _csrfHeaderIfPresent(),
+      headers: {if (token != null) 'X-XSRF-TOKEN': token},
     );
-
-    if (res.statusCode != 200 && res.statusCode != 204) {
-      // TODO: handle errors or logging if needed
-    }
-  }
-
-  // =================== CSRF helpers ===================
-
-  /// Force Backend to issue the XSRF-TOKEN cookie
-  /// This should be called before sending state-changing requests (POST, PUT, PATCH, DELETE)
-  static Future<void> _prefetchCsrf() async {
-    await _client.get(_u('/auth/me'));
-  }
-
-  /// Read the XSRF-TOKEN cookie and return it as a header.
-  static Map<String, String> _csrfHeaderIfPresent() {
-    final token = _readCookie('XSRF-TOKEN');
-    return token == null ? const {} : {'X-XSRF-TOKEN': token};
-  }
-
-  /// Read cookies in Web
-  static String? _readCookie(String name) {
-    final cookieStr = web.document.cookie ?? '';
-    if (cookieStr.isEmpty) return null;
-
-    for (final part in cookieStr.split(';')) {
-      final kv = part.trim().split('=');
-      if (kv.length == 2 && kv.first == name) {
-        return Uri.decodeComponent(kv[1]);
-      }
-    }
-    return null;
   }
 }
