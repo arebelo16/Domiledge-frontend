@@ -31,8 +31,14 @@ class AuthApi {
   }
 
   static Future<bool> isAuthenticated() async {
-    final res = await _client.get(_u('/auth/me'));
-    return res.statusCode == 200;
+    try {
+      final res = await _client
+          .get(_u('/auth/me'))
+          .timeout(const Duration(seconds: 8));
+      return res.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
   }
 
   static Future<void> logout() async {

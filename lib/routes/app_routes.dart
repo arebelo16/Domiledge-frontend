@@ -16,13 +16,6 @@ class AppRoutes {
   static const String properties = '/properties';
   static const String account = '/account';
 
-  static final Map<String, WidgetBuilder> routes = {
-    login: (_) => const LoginPage(),
-    register: (_) => const RegisterPage(),
-    home: (_) => const HomePage(),
-    account: (_) => const ProfilePage(),
-  };
-
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
       case AppRoutes.home:

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'features/home/screens/not_found_page.dart';
 import 'routes/app_routes.dart';
 
 void main() {
@@ -21,8 +22,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
         useMaterial3: true,
       ),
-      initialRoute: '/login',
-      routes: AppRoutes.routes,
+      initialRoute: AppRoutes.login,
+      onUnknownRoute: (_) => MaterialPageRoute(builder: (_) => const NotFoundPage()),
       onGenerateRoute: AppRoutes.onGenerateRoute,
     );
   }
