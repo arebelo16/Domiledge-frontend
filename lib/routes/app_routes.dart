@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../features/auth/screens/login_page.dart';
 import '../features/auth/screens/register_page.dart';
 import '../features/home/screens/home_page.dart';
+import '../features/home/screens/not_found_page.dart';
 
 class AppRoutes {
   static const String login = '/login';
@@ -34,8 +35,7 @@ class AppRoutes {
       case register:
         return MaterialPageRoute(builder: (_) => const RegisterPage());
       default:
-        final builder = routes[settings.name];
-        return MaterialPageRoute(builder: builder ?? (_) => const HomePage());
+        return MaterialPageRoute(builder: (_) => const NotFoundPage());
     }
   }
 }
