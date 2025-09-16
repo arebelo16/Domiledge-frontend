@@ -122,7 +122,7 @@ class _LoginPageState extends State<LoginPage> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset('images/login_bg.webp', fit: BoxFit.cover),
+          Image.asset('assets/images/login_bg.webp', fit: BoxFit.cover),
           Container(color: Colors.black.withOpacity(0.48)),
 
           Center(
