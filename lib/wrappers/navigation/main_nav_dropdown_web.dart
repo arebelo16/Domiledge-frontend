@@ -16,7 +16,8 @@ class _WebDropdownMenuState extends State<WebDropdownMenu> {
   final GlobalKey _key = GlobalKey();
 
   void _showDropdownMenu(BuildContext context) async {
-    final RenderBox renderBox = _key.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox renderBox =
+        _key.currentContext!.findRenderObject() as RenderBox;
     final Offset offset = renderBox.localToGlobal(Offset.zero);
 
     final selected = await showMenu<String>(
@@ -29,16 +30,18 @@ class _WebDropdownMenuState extends State<WebDropdownMenu> {
       ),
       color: const Color.fromARGB(217, 245, 245, 245),
       items: widget.items
-          .map((item) => PopupMenuItem<String>(
-        value: item.label,
-        child: Row(
-          children: [
-            Icon(item.icon, size: 18, color: Colors.grey.shade700),
-            const SizedBox(width: 8),
-            Text(item.label),
-          ],
-        ),
-      ))
+          .map(
+            (item) => PopupMenuItem<String>(
+              value: item.label,
+              child: Row(
+                children: [
+                  Icon(item.icon, size: 18, color: Colors.grey.shade700),
+                  const SizedBox(width: 8),
+                  Text(item.label),
+                ],
+              ),
+            ),
+          )
           .toList(),
     );
 
@@ -46,14 +49,14 @@ class _WebDropdownMenuState extends State<WebDropdownMenu> {
       Navigator.of(context).pushReplacementNamed(AppRoutes.properties);
     }
 
-    if (selected == 'Perfil') {
+    if (selected == 'Minha conta') {
       Navigator.of(context).pushReplacementNamed(AppRoutes.account);
     }
 
     if (selected != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Selecionado: $selected")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Selecionado: $selected")));
     }
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../routes/app_routes.dart';
 
 class NotFoundPage extends StatelessWidget {
@@ -17,7 +18,8 @@ class NotFoundPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => Navigator.pushReplacementNamed(context, AppRoutes.login),
+              onPressed: () =>
+                  Navigator.pushReplacementNamed(context, AppRoutes.login),
               child: const Text('Ir para Login'),
             ),
           ],

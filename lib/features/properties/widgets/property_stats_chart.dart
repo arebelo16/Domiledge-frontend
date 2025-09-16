@@ -75,15 +75,16 @@ class _ProfitChartState extends State<ProfitChart> {
     setState(() => _loading = true);
 
     if (widget.series != null) {
-      _data = List.of(widget.series!)
-        ..sort((a, b) => a.x.compareTo(b.x));
+      _data = List.of(widget.series!)..sort((a, b) => a.x.compareTo(b.x));
       setState(() => _loading = false);
       return;
     }
 
     if (widget.profitsProvider != null) {
       try {
-        final points = await widget.profitsProvider!.fetchSeries(widget.propertyKey);
+        final points = await widget.profitsProvider!.fetchSeries(
+          widget.propertyKey,
+        );
         _data = List.of(points)..sort((a, b) => a.x.compareTo(b.x));
       } catch (_) {
         _data = _fallbackData();
@@ -134,7 +135,8 @@ class _ProfitChartState extends State<ProfitChart> {
   }
 
   List<LineSeries<ProfitPoint, DateTime>> _buildSegmentedSeries(
-      List<ProfitPoint> data) {
+    List<ProfitPoint> data,
+  ) {
     if (data.length < 2) return const [];
 
     final List<LineSeries<ProfitPoint, DateTime>> segments = [];

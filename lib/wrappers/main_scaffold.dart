@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../core/services/storage_services.dart';
-import '../routes/app_routes.dart';
+
 import '../features/auth/controllers/auth_controller.dart';
+import '../routes/app_routes.dart';
 import 'app_bar/main_app_bar_web.dart';
 import 'drawer/main_drawer_mobile.dart';
 import 'navigation/popup_menu_item_icon.dart';
@@ -23,14 +23,12 @@ class MainScaffold extends StatelessWidget {
   Future<void> _handleMenuSelection(BuildContext context, String value) async {
     switch (value) {
       case 'account':
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('My account (em breve)')),
-        );
+        final navigator = Navigator.of(context);
+        navigator.pushReplacementNamed(AppRoutes.account);
         break;
       case 'logout':
         final navigator = Navigator.of(context);
         await _authController.logout();
-        await StorageService.clearToken();
         navigator.pushReplacementNamed(AppRoutes.login);
         break;
     }
@@ -39,9 +37,15 @@ class MainScaffold extends StatelessWidget {
   void _onNavTap(BuildContext context, int index) {
     if (index == selectedIndex) return;
     switch (index) {
-      case 0: Navigator.pushReplacementNamed(context, AppRoutes.home); break;
-      case 1: Navigator.pushReplacementNamed(context, AppRoutes.properties); break;
-      case 2: Navigator.pushReplacementNamed(context, AppRoutes.account); break;
+      case 0:
+        Navigator.pushReplacementNamed(context, AppRoutes.home);
+        break;
+      case 1:
+        Navigator.pushReplacementNamed(context, AppRoutes.properties);
+        break;
+      case 2:
+        Navigator.pushReplacementNamed(context, AppRoutes.account);
+        break;
     }
   }
 
@@ -55,7 +59,7 @@ class MainScaffold extends StatelessWidget {
         backgroundColor: Colors.grey.shade200,
         body: Column(
           children: [
-            const MainAppBarWeb(),
+            MainAppBarWeb(),
             Expanded(child: body),
           ],
         ),
@@ -64,13 +68,12 @@ class MainScaffold extends StatelessWidget {
 
     return Scaffold(
       drawerEnableOpenDragGesture: isNarrow,
-      drawerEdgeDragWidth:  isNarrow ? 28 : 0,
+      drawerEdgeDragWidth: isNarrow ? 28 : 0,
       drawer: isNarrow ? MainDrawerMobile(onNavTap: _onNavTap) : null,
 
       appBar: AppBar(
         backgroundColor: Colors.blue.shade400,
         elevation: 0.5,
-        // HAMBURGER AO LADO DO LOGO
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu, color: Colors.white),
@@ -112,8 +115,16 @@ class MainScaffold extends StatelessWidget {
             icon: const Icon(Icons.account_circle, color: Colors.white),
             onSelected: (value) => _handleMenuSelection(context, value),
             itemBuilder: (BuildContext context) => const [
-              PopupMenuItemIcon(value: 'account', icon: Icons.person, text: 'My account'),
-              PopupMenuItemIcon(value: 'logout', icon: Icons.logout, text: 'Logout'),
+              PopupMenuItemIcon(
+                value: 'account',
+                icon: Icons.person,
+                text: 'Minha conta',
+              ),
+              PopupMenuItemIcon(
+                value: 'logout',
+                icon: Icons.logout,
+                text: 'Logout',
+              ),
             ],
           ),
         ],

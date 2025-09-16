@@ -17,5 +17,6 @@ class PropertyModel {
 class PropertyItem {
   final String id;
   final PropertyModel model;
+
   PropertyItem(this.id, this.model);
 }

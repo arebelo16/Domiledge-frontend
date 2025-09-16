@@ -1,5 +1,6 @@
 // lib/features/properties/widgets/properties_panel_web.dart
 import 'package:flutter/material.dart';
+
 import '../../../core/models/property_model.dart';
 import '../controllers/properties_controller.dart';
 import '../widgets/add_property_button.dart';

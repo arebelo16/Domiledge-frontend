@@ -2,7 +2,7 @@ import '../../../../core/models/property_model.dart';
 import '../../utils/type_mapper.dart';
 
 class PropertyDto {
-  final String id;            // UUID
+  final String id; // UUID
   final String title;
   final String address;
   final int bookings;

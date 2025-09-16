@@ -1,100 +1,69 @@
-import 'package:flutter/material.dart';
+import '../../../core/utils/result.dart';
 import '../data/account_api.dart';
-import '../data/dto/user_profile_dto.dart';
 import '../data/dto/active_session_dto.dart';
-import '../model/user_profile.dart';
+import '../data/dto/user_profile_dto.dart';
 import '../model/active_session.dart';
-import '../utils/theme_mapper.dart';
+import '../model/user_profile.dart';
+import '../utils/user_profile_mapper.dart';
 
 class AccountController {
   final _api = AccountApi();
 
-  Future<UserProfile> fetchProfile() async {
-    final dto = await _api.getMe();
+  // ===================== PROFILE =====================
 
-    return UserProfile(
-      id: dto.id,
-      name: dto.name,
-      email: dto.email,
-      role: dto.role,
-      phone: dto.phone,
-      country: dto.country,
-      city: dto.city,
-      address: dto.address,
-      createdAt: dto.createdAt,
-      lastLoginAt: dto.lastLoginAt,
-      twoFactorEnabled: dto.twoFactorEnabled,
-      themeMode: ThemeMapper.toMode(dto.theme),
-      notifyEmail: dto.notifyEmail,
-      notifyPush: dto.notifyPush,
-      plan: dto.plan,
-      vatNumber: dto.vatNumber,
-      companyName: dto.companyName,
+  Future<Result<UserProfile>> fetchProfileResult() async {
+    final res = await _api.getMe();
+    return res.when(
+      success: (UserProfileDto dto) =>
+          Result.success(UserProfileMapper.mapUser(dto)),
+      failure: (msg) => Result.failure(msg),
     );
   }
 
-  Future<UserProfile> updateProfile(UserProfile model) async {
-    final dto = UserProfileDto(
-      id: model.id,
-      name: model.name,
-      email: model.email,
-      role: model.role,
-      theme: ThemeMapper.toApi(model.themeMode),
-      twoFactorEnabled: model.twoFactorEnabled,
-      notifyEmail: model.notifyEmail,
-      notifyPush: model.notifyPush,
-      plan: model.plan,
-      createdAt: model.createdAt,
-      lastLoginAt: model.lastLoginAt,
-      phone: model.phone,
-      country: model.country,
-      city: model.city,
-      address: model.address,
-      vatNumber: model.vatNumber,
-      companyName: model.companyName,
-    );
-
-    final updated = await _api.updateMe(dto);
-
-    return UserProfile(
-      id: updated.id,
-      name: updated.name,
-      email: updated.email,
-      role: updated.role,
-      phone: updated.phone,
-      country: updated.country,
-      city: updated.city,
-      address: updated.address,
-      createdAt: updated.createdAt,
-      lastLoginAt: updated.lastLoginAt,
-      twoFactorEnabled: updated.twoFactorEnabled,
-      themeMode: ThemeMapper.toMode(updated.theme),
-      notifyEmail: updated.notifyEmail,
-      notifyPush: updated.notifyPush,
-      plan: updated.plan,
-      vatNumber: updated.vatNumber,
-      companyName: updated.companyName,
+  Future<Result<UserProfile>> updateProfileResult(UserProfile model) async {
+    final dto = UserProfileMapper.toDto(model);
+    final res = await _api.updateMe(dto);
+    return res.when(
+      success: (UserProfileDto updated) =>
+          Result.success(UserProfileMapper.mapUser(updated)),
+      failure: (msg) => Result.failure(msg),
     );
   }
 
-  Future<void> changePassword({
+  // ===================== SECURITY =====================
+
+  Future<Result<bool>> changePasswordResult({
     required String current,
     required String next,
-  }) => _api.changePassword(current: current, next: next);
-
-  Future<void> toggle2FA(bool enable) => _api.toggle2FA(enable);
-
-  Future<List<ActiveSession>> fetchSessions() async {
-    final list = await _api.sessions();
-    return list.map(_mapSession).toList();
+  }) async {
+    final res = await _api.changePassword(current: current, next: next);
+    return res;
   }
 
-  Future<void> revokeSession(ActiveSession s) => _api.revokeSession(s.id);
+  Future<Result<bool>> toggle2FAResult(bool enable) async {
+    final res = await _api.toggle2FA(enable);
+    return res;
+  }
 
-  Future<void> exportData() => _api.exportData();
+  // ===================== SESSIONS =====================
 
-  Future<void> deleteAccount() => _api.deleteAccount();
+  Future<Result<List<ActiveSession>>> fetchSessionsResult() async {
+    final res = await _api.sessions();
+    return res.when(
+      success: (List<ActiveSessionDto> dtos) =>
+          Result.success(dtos.map(ActiveSession.fromDto).toList()),
+      failure: (msg) => Result.failure(msg),
+    );
+  }
 
-  ActiveSession _mapSession(ActiveSessionDto d) =>
-      ActiveSession(id: d.id, device: d.device, ip: d.ip, lastSeen: d.lastSeen);
+  Future<Result<bool>> revokeSessionResult(ActiveSession s) async {
+    final res = await _api.revokeSession(s.id);
+    return res;
+  }
+
+  // ===================== DATA & ACCOUNT =====================
+
+  Future<Result<bool>> exportDataResult() => _api.exportData();
+
+  Future<Result<bool>> deleteAccountResult() => _api.deleteAccount();
 }

@@ -43,16 +43,19 @@ class _CreatePropertyDialogState extends State<CreatePropertyDialog> {
 
   void _submit() {
     if (!_form.currentState!.validate()) return;
-    final profit = double.tryParse(_estimatedProfit.text.replaceAll(',', '.')) ?? 0;
+    final profit =
+        double.tryParse(_estimatedProfit.text.replaceAll(',', '.')) ?? 0;
     final book = int.tryParse(_bookings.text) ?? 0;
 
-    Navigator.of(context).pop(CreatePropertyResult(
-      name: _name.text.trim(),
-      location: _location.text.trim(),
-      type: _type,
-      estimatedProfit: profit,
-      bookings: book,
-    ));
+    Navigator.of(context).pop(
+      CreatePropertyResult(
+        name: _name.text.trim(),
+        location: _location.text.trim(),
+        type: _type,
+        estimatedProfit: profit,
+        bookings: book,
+      ),
+    );
   }
 
   @override
@@ -68,19 +71,24 @@ class _CreatePropertyDialogState extends State<CreatePropertyDialog> {
               TextFormField(
                 controller: _name,
                 decoration: const InputDecoration(labelText: 'Nome'),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Obrigatório' : null,
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Obrigatório' : null,
               ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _location,
                 decoration: const InputDecoration(labelText: 'Localização'),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Obrigatório' : null,
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Obrigatório' : null,
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: _type,
                 items: const [
-                  DropdownMenuItem(value: 'Apartamento', child: Text('Apartamento')),
+                  DropdownMenuItem(
+                    value: 'Apartamento',
+                    child: Text('Apartamento'),
+                  ),
                   DropdownMenuItem(value: 'Moradia', child: Text('Moradia')),
                   DropdownMenuItem(value: 'Estúdio', child: Text('Estúdio')),
                 ],
@@ -90,8 +98,12 @@ class _CreatePropertyDialogState extends State<CreatePropertyDialog> {
               const SizedBox(height: 8),
               TextFormField(
                 controller: _estimatedProfit,
-                decoration: const InputDecoration(labelText: 'Lucro estimado (€)'),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(
+                  labelText: 'Lucro estimado (€)',
+                ),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
               ),
               const SizedBox(height: 8),
               TextFormField(
@@ -104,7 +116,10 @@ class _CreatePropertyDialogState extends State<CreatePropertyDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancelar'),
+        ),
         ElevatedButton(onPressed: _submit, child: const Text('Criar')),
       ],
     );

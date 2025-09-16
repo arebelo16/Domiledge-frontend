@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../shared/widgets/text_fields.dart';
 import '../../account/model/user_profile.dart';
 import 'section_card.dart';
 
@@ -18,17 +20,32 @@ class PersonalInfoCard extends StatefulWidget {
 
 class _PersonalInfoCardState extends State<PersonalInfoCard> {
   final _form = GlobalKey<FormState>();
-  late String name, phone, country, city, address;
+
+  late final TextEditingController _nameC;
+  late final TextEditingController _phoneC;
+  late final TextEditingController _countryC;
+  late final TextEditingController _cityC;
+  late final TextEditingController _addressC;
 
   @override
   void initState() {
     super.initState();
     final p = widget.profile;
-    name = p.name;
-    phone = p.phone ?? '';
-    country = p.country ?? '';
-    city = p.city ?? '';
-    address = p.address ?? '';
+    _nameC = TextEditingController(text: p.name);
+    _phoneC = TextEditingController(text: p.phone ?? '');
+    _countryC = TextEditingController(text: p.country ?? '');
+    _cityC = TextEditingController(text: p.city ?? '');
+    _addressC = TextEditingController(text: p.address ?? '');
+  }
+
+  @override
+  void dispose() {
+    _nameC.dispose();
+    _phoneC.dispose();
+    _countryC.dispose();
+    _cityC.dispose();
+    _addressC.dispose();
+    super.dispose();
   }
 
   @override
@@ -41,33 +58,71 @@ class _PersonalInfoCardState extends State<PersonalInfoCard> {
         key: _form,
         child: Column(
           children: [
-            _f('Nome', name, (v) => name = v ?? ''),
+            CustomTextField(
+              controller: _nameC,
+              label: 'Nome',
+              textInputAction: TextInputAction.next,
+              autofillHints: const [AutofillHints.name],
+            ),
             const SizedBox(height: 10),
-            _f('Telemóvel', phone, (v) => phone = v ?? ''),
+            CustomTextField(
+              controller: _phoneC,
+              label: 'Telemóvel',
+              keyboardType: TextInputType.phone,
+              textInputAction: TextInputAction.next,
+              autofillHints: const [AutofillHints.telephoneNumber],
+            ),
             const SizedBox(height: 10),
             Row(
               children: [
-                Expanded(child: _f('País', country, (v) => country = v ?? '')),
+                Expanded(
+                  child: CustomTextField(
+                    controller: _countryC,
+                    label: 'País',
+                    textInputAction: TextInputAction.next,
+                    autofillHints: const [AutofillHints.countryName],
+                  ),
+                ),
                 const SizedBox(width: 10),
-                Expanded(child: _f('Cidade', city, (v) => city = v ?? '')),
+                Expanded(
+                  child: CustomTextField(
+                    controller: _cityC,
+                    label: 'Cidade',
+                    textInputAction: TextInputAction.next,
+                    autofillHints: const [AutofillHints.addressCity],
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 10),
-            _f('Morada', address, (v) => address = v ?? ''),
+            CustomTextField(
+              controller: _addressC,
+              label: 'Morada',
+              maxLines: 2,
+              textInputAction: TextInputAction.done,
+              autofillHints: const [AutofillHints.fullStreetAddress],
+            ),
             const SizedBox(height: 12),
             Align(
               alignment: Alignment.centerRight,
               child: FilledButton.icon(
                 icon: const Icon(Icons.save_rounded, size: 18),
                 onPressed: () async {
-                  _form.currentState?.save();
                   await widget.onSaved(
                     widget.profile.copyWith(
-                      name: name,
-                      phone: phone,
-                      country: country,
-                      city: city,
-                      address: address,
+                      name: _nameC.text.trim(),
+                      phone: _phoneC.text.trim().isEmpty
+                          ? null
+                          : _phoneC.text.trim(),
+                      country: _countryC.text.trim().isEmpty
+                          ? null
+                          : _countryC.text.trim(),
+                      city: _cityC.text.trim().isEmpty
+                          ? null
+                          : _cityC.text.trim(),
+                      address: _addressC.text.trim().isEmpty
+                          ? null
+                          : _addressC.text.trim(),
                     ),
                   );
                 },
@@ -76,18 +131,6 @@ class _PersonalInfoCardState extends State<PersonalInfoCard> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _f(String label, String initial, FormFieldSetter<String> onSaved) {
-    return TextFormField(
-      initialValue: initial,
-      onSaved: onSaved,
-      decoration: const InputDecoration(
-        labelText: '', // labels subtis (mantém o look atual)
-        border: OutlineInputBorder(),
-        isDense: true,
       ),
     );
   }

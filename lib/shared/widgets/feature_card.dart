@@ -27,12 +27,18 @@ class FeatureCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title,
-                      style:
-                      const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  Text(description,
-                      style: const TextStyle(color: Colors.grey, fontSize: 14)),
+                  Text(
+                    description,
+                    style: const TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
                 ],
               ),
             ),

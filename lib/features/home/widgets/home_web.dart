@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../wrappers/main_scaffold.dart';
 
 class HomeWeb extends StatelessWidget {
@@ -17,10 +18,7 @@ class HomeWeb extends StatelessWidget {
             width: double.infinity,
             color: Colors.grey.shade600,
             child: const Center(
-              child: ElevatedButton(
-                onPressed: null,
-                child: Text("HERO BTN"),
-              ),
+              child: ElevatedButton(onPressed: null, child: Text("HERO BTN")),
             ),
           ),
 
@@ -29,9 +27,7 @@ class HomeWeb extends StatelessWidget {
             child: Container(
               width: double.infinity,
               color: Colors.grey.shade300,
-              child: const Center(
-                child: Text("Conteúdo adicional"),
-              ),
+              child: const Center(child: Text("Conteúdo adicional")),
             ),
           ),
         ],

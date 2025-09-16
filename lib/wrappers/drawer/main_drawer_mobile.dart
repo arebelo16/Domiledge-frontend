@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class MainDrawerMobile extends StatelessWidget {
   final void Function(BuildContext, int) onNavTap;
+
   const MainDrawerMobile({super.key, required this.onNavTap});
 
   @override
@@ -17,8 +18,14 @@ class MainDrawerMobile extends StatelessWidget {
               children: const [
                 Icon(Icons.apartment, color: Colors.white, size: 24),
                 SizedBox(width: 8),
-                Text('Domiledge Menu',
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700)),
+                Text(
+                  'Domiledge Menu',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ],
             ),
           ),

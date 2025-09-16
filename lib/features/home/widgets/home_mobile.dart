@@ -9,7 +9,10 @@ class HomeMobile extends StatelessWidget {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Domiledge", style: TextStyle(fontWeight: FontWeight.bold)),
+          title: const Text(
+            "Domiledge",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           centerTitle: false,
           actions: [
             IconButton(

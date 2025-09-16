@@ -1,12 +1,13 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:web/web.dart' as web;
+
 import '../../../core/utils/replace_url.dart';
+import '../../../core/utils/result.dart';
 import '../../../routes/app_routes.dart';
 import '../data/auth_api.dart';
 
 class RequireAuth extends StatefulWidget {
   final Widget child;
+
   const RequireAuth({super.key, required this.child});
 
   @override
@@ -14,7 +15,7 @@ class RequireAuth extends StatefulWidget {
 }
 
 class _RequireAuthState extends State<RequireAuth> {
-  late final Future<bool> _authFuture = AuthApi.isAuthenticated();
+  late final Future<Result<bool>> _authFuture = AuthApi.isAuthenticated();
   bool _navigated = false;
 
   void _goLogin() {
@@ -28,16 +29,23 @@ class _RequireAuthState extends State<RequireAuth> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
+    return FutureBuilder<Result<bool>>(
       future: _authFuture,
-      builder: (context, s) {
-        if (s.connectionState == ConnectionState.waiting) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
-        if (s.hasError || s.data != true) {
-          _goLogin();
-          return const SizedBox.shrink();
+
+        if (snapshot.hasData) {
+          final result = snapshot.data!;
+          if (result.isFailure || result.data != true) {
+            _goLogin();
+            return const SizedBox.shrink();
+          }
         }
+
         return widget.child;
       },
     );

@@ -63,17 +63,20 @@ class _PropertyEditDialogState extends State<PropertyEditDialog> {
     super.initState();
     _nameCtrl = TextEditingController(text: widget.initialName);
     _locationCtrl = TextEditingController(text: widget.initialLocation);
-    _bookingsCtrl = TextEditingController(text: widget.initialBookings.toString());
-    _profitCtrl =
-        TextEditingController(text: widget.initialEstimatedProfit.toStringAsFixed(2));
+    _bookingsCtrl = TextEditingController(
+      text: widget.initialBookings.toString(),
+    );
+    _profitCtrl = TextEditingController(
+      text: widget.initialEstimatedProfit.toStringAsFixed(2),
+    );
 
     final t = (widget.initialType ?? '').trim();
     _type = t.isEmpty
         ? null
         : _defaultTypes.firstWhere(
-          (x) => x.toLowerCase() == t.toLowerCase(),
-      orElse: () => t,
-    );
+            (x) => x.toLowerCase() == t.toLowerCase(),
+            orElse: () => t,
+          );
   }
 
   @override
@@ -124,7 +127,8 @@ class _PropertyEditDialogState extends State<PropertyEditDialog> {
     if (!_formKey.currentState!.validate()) return;
 
     final bookings = int.tryParse(_bookingsCtrl.text.trim()) ?? 0;
-    final profit = double.tryParse(_profitCtrl.text.replaceAll(',', '.').trim()) ?? 0;
+    final profit =
+        double.tryParse(_profitCtrl.text.replaceAll(',', '.').trim()) ?? 0;
 
     Navigator.of(context).pop(
       PropertyEditResult(
@@ -163,15 +167,17 @@ class _PropertyEditDialogState extends State<PropertyEditDialog> {
                       color: Colors.blueAccent.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.home_work, color: Colors.blueAccent),
+                    child: const Icon(
+                      Icons.home_work,
+                      color: Colors.blueAccent,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Text(
                     'Editar Propriedade',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const Spacer(),
                   IconButton(
@@ -191,20 +197,20 @@ class _PropertyEditDialogState extends State<PropertyEditDialog> {
                 key: _formKey,
                 child: isWide
                     ? Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: _leftForm()),
-                    const SizedBox(width: 16),
-                    Expanded(child: _rightForm()),
-                  ],
-                )
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: _leftForm()),
+                          const SizedBox(width: 16),
+                          Expanded(child: _rightForm()),
+                        ],
+                      )
                     : Column(
-                  children: [
-                    _leftForm(),
-                    const SizedBox(height: 16),
-                    _rightForm(),
-                  ],
-                ),
+                        children: [
+                          _leftForm(),
+                          const SizedBox(height: 16),
+                          _rightForm(),
+                        ],
+                      ),
               ),
 
               const SizedBox(height: 20),
@@ -214,45 +220,48 @@ class _PropertyEditDialogState extends State<PropertyEditDialog> {
                 children: [
                   isMobile
                       ? IconButton(
-                    tooltip: 'Apagar propriedade',
-                    onPressed: _confirmDelete,
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                  )
+                          tooltip: 'Apagar propriedade',
+                          onPressed: _confirmDelete,
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                        )
                       : TextButton.icon(
-                    onPressed: _confirmDelete,
-                    icon: const Icon(Icons.delete_outline),
-                    label: const Text('Apagar propriedade'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.red.shade700,
-                    ),
-                  ),
+                          onPressed: _confirmDelete,
+                          icon: const Icon(Icons.delete_outline),
+                          label: const Text('Apagar propriedade'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.red.shade700,
+                          ),
+                        ),
 
                   const Spacer(),
 
                   isMobile
                       ? IconButton(
-                    tooltip: 'Cancelar',
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close),
-                  )
+                          tooltip: 'Cancelar',
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(Icons.close),
+                        )
                       : OutlinedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Cancelar'),
-                  ),
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('Cancelar'),
+                        ),
 
                   const SizedBox(width: 8),
 
                   isMobile
                       ? IconButton(
-                    tooltip: 'Guardar alterações',
-                    onPressed: _save,
-                    icon: const Icon(Icons.save_outlined, color: Colors.blueAccent),
-                  )
+                          tooltip: 'Guardar alterações',
+                          onPressed: _save,
+                          icon: const Icon(
+                            Icons.save_outlined,
+                            color: Colors.blueAccent,
+                          ),
+                        )
                       : FilledButton.icon(
-                    onPressed: _save,
-                    icon: const Icon(Icons.save_outlined),
-                    label: const Text('Guardar alterações'),
-                  ),
+                          onPressed: _save,
+                          icon: const Icon(Icons.save_outlined),
+                          label: const Text('Guardar alterações'),
+                        ),
                 ],
               ),
             ],
@@ -273,7 +282,8 @@ class _PropertyEditDialogState extends State<PropertyEditDialog> {
             hintText: 'Ex.: Casa Vela',
             border: OutlineInputBorder(),
           ),
-          validator: (v) => (v == null || v.trim().isEmpty) ? 'Obrigatório' : null,
+          validator: (v) =>
+              (v == null || v.trim().isEmpty) ? 'Obrigatório' : null,
         ),
         const SizedBox(height: 12),
         TextFormField(
@@ -283,7 +293,8 @@ class _PropertyEditDialogState extends State<PropertyEditDialog> {
             hintText: 'Ex.: Lisboa, Portugal',
             border: OutlineInputBorder(),
           ),
-          validator: (v) => (v == null || v.trim().isEmpty) ? 'Obrigatório' : null,
+          validator: (v) =>
+              (v == null || v.trim().isEmpty) ? 'Obrigatório' : null,
         ),
       ],
     );
@@ -343,10 +354,12 @@ class _PropertyEditDialogState extends State<PropertyEditDialog> {
           hint: const Text('(Sem tipo)'),
           items: [
             ..._defaultTypes.map(
-                  (t) => DropdownMenuItem<String>(value: t, child: Text(t)),
+              (t) => DropdownMenuItem<String>(value: t, child: Text(t)),
             ),
             if (_type != null &&
-                !_defaultTypes.any((t) => t.toLowerCase() == _type!.toLowerCase()))
+                !_defaultTypes.any(
+                  (t) => t.toLowerCase() == _type!.toLowerCase(),
+                ))
               DropdownMenuItem<String>(value: _type, child: Text(_type!)),
           ],
           onChanged: (v) => setState(() => _type = v),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../core/models/property_model.dart';
 
 class PropertiesGrid extends StatelessWidget {
@@ -33,10 +34,17 @@ class PropertiesGrid extends StatelessWidget {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
-              color: isSelected ? Colors.deepPurple.shade200 : Colors.grey.shade400,
+              color: isSelected
+                  ? Colors.deepPurple.shade200
+                  : Colors.grey.shade400,
               borderRadius: BorderRadius.circular(12),
               boxShadow: isSelected
-                  ? [BoxShadow(color: Colors.deepPurple.shade100, blurRadius: 10)]
+                  ? [
+                      BoxShadow(
+                        color: Colors.deepPurple.shade100,
+                        blurRadius: 10,
+                      ),
+                    ]
                   : [],
             ),
             padding: const EdgeInsets.all(16),

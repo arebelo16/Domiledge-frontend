@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../models/profits_model.dart';
 import '../models/property_model.dart';
 import '../models/reservation_models.dart';
@@ -20,8 +21,8 @@ abstract class PropertiesProvider {
 class MockReservationsProvider implements ReservationsProvider {
   final Map<String, List<Reservation>> _seed;
 
-   MockReservationsProvider({Map<String, List<Reservation>>? seed})
-      : _seed = seed ?? _defaultSeed();
+  MockReservationsProvider({Map<String, List<Reservation>>? seed})
+    : _seed = seed ?? _defaultSeed();
 
   @override
   List<Reservation> fetch(String propertyKey, DateTime start, DateTime end) {
@@ -112,9 +113,11 @@ class MockReservationsProvider implements ReservationsProvider {
     ];
 
     return {
-      // usa o title como key por agora, no futuro ID do backend
+      //TODO title como key por agora, no futuro ID do backend
       'Casa Vela': apts(),
-      'Propriedade 2': apts().map((r) => r.copyWith(color: const Color(0xFF009688))).toList(),
+      'Propriedade 2': apts()
+          .map((r) => r.copyWith(color: const Color(0xFF009688)))
+          .toList(),
       'Propriedade 3': villas(),
       'Propriedade 4': studios(),
     };
@@ -130,16 +133,55 @@ class MockProfitsProvider implements ProfitsProvider {
     List<double> base;
     switch (propertyKey) {
       case 'Propriedade 2':
-        base = [ -3000, -1800, -900, -200,  150,   300,   100,  -50,  200,  350,  500,  650 ];
+        base = [
+          -3000,
+          -1800,
+          -900,
+          -200,
+          150,
+          300,
+          100,
+          -50,
+          200,
+          350,
+          500,
+          650,
+        ];
         break;
       case 'Propriedade 3':
-        base = [ -2500, -1200, -600, -100,  250,   450,   300,  150,  300,  450,  700,  900 ];
+        base = [
+          -2500,
+          -1200,
+          -600,
+          -100,
+          250,
+          450,
+          300,
+          150,
+          300,
+          450,
+          700,
+          900,
+        ];
         break;
       case 'Propriedade 4':
-        base = [ -1000,  -800, -400, -150,   50,   150,   120,   80,  140,  220,  260,  300 ];
+        base = [-1000, -800, -400, -150, 50, 150, 120, 80, 140, 220, 260, 300];
         break;
       default:
-        base = [ -6000, -3000, -1000, -800, -900, -700, -850, -200,  100,  250,  400,  900 ];
+        base = [
+          -6000,
+          -3000,
+          -1000,
+          -800,
+          -900,
+          -700,
+          -850,
+          -200,
+          100,
+          250,
+          400,
+          900,
+        ];
     }
 
     return List.generate(12, (i) => ProfitPoint(m(i), base[i].toDouble()));

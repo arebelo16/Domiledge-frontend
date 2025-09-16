@@ -5,7 +5,8 @@ class PopupMenuItemIcon extends PopupMenuEntry<String> {
   final String text;
   final IconData icon;
 
-  const PopupMenuItemIcon({super.key,
+  const PopupMenuItemIcon({
+    super.key,
     required this.value,
     required this.text,
     required this.icon,

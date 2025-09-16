@@ -1,12 +1,13 @@
 import 'package:domiledge_frontend/core/utils/replace_url.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:domiledge_frontend/core/utils/result.dart';
 import 'package:flutter/material.dart';
-import 'package:web/web.dart' as web;
+
 import '../../../routes/app_routes.dart';
 import '../data/auth_api.dart';
 
 class GuestOnly extends StatefulWidget {
   final Widget child;
+
   const GuestOnly({super.key, required this.child});
 
   @override
@@ -14,7 +15,8 @@ class GuestOnly extends StatefulWidget {
 }
 
 class _GuestOnlyState extends State<GuestOnly> {
-  late final Future<bool> _authFuture = AuthApi.isAuthenticated();
+  late final Future<Result<bool>> _authFuture = AuthApi.isAuthenticated();
+
   bool _navigated = false;
 
   void _goHome() {
@@ -28,16 +30,23 @@ class _GuestOnlyState extends State<GuestOnly> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
+    return FutureBuilder<Result<bool>>(
       future: _authFuture,
-      builder: (context, s) {
-        if (s.connectionState == ConnectionState.waiting) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
-        if (!s.hasError && s.data == true) {
-          _goHome();
-          return const SizedBox.shrink();
+
+        if (snapshot.hasData) {
+          final result = snapshot.data!;
+          if (result.isSuccess && result.data == true) {
+            _goHome();
+            return const SizedBox.shrink();
+          }
         }
+
         return widget.child;
       },
     );

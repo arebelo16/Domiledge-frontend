@@ -1,9 +1,10 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+
 import '../../../core/services/reservation_service.dart';
 import 'property_calendar.dart';
-import 'property_stats_chart.dart';
 import 'property_edit_dialog.dart';
+import 'property_stats_chart.dart';
 
 class PropertyDetailsPanel extends StatefulWidget {
   final String name;
@@ -13,12 +14,13 @@ class PropertyDetailsPanel extends StatefulWidget {
   final String type;
 
   final void Function({
-  required String name,
-  required String location,
-  required int bookings,
-  required double estimatedProfit,
-  required String type,
-  })? onUpdate;
+    required String name,
+    required String location,
+    required int bookings,
+    required double estimatedProfit,
+    required String type,
+  })?
+  onUpdate;
 
   final Future<bool> Function()? onDelete;
 
@@ -175,10 +177,9 @@ class _PropertyDetailsPanelState extends State<PropertyDetailsPanel> {
                   children: [
                     Text(
                       _name,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     Wrap(
@@ -187,8 +188,10 @@ class _PropertyDetailsPanelState extends State<PropertyDetailsPanel> {
                       children: [
                         _infoRow('📍 Localização:', _location),
                         _infoRow('📅 Reservas este mês:', _bookings.toString()),
-                        _infoRow('💸 Lucro estimado:',
-                            '${_estimatedProfit.toStringAsFixed(2)}€'),
+                        _infoRow(
+                          '💸 Lucro estimado:',
+                          '${_estimatedProfit.toStringAsFixed(2)}€',
+                        ),
                         _infoRow('🏷️ Tipo:', _type.isEmpty ? '—' : _type),
                       ],
                     ),
@@ -264,10 +267,7 @@ class _CalendarHeader extends StatelessWidget {
   final String title;
   final VoidCallback onManage;
 
-  const _CalendarHeader({
-    required this.title,
-    required this.onManage,
-  });
+  const _CalendarHeader({required this.title, required this.onManage});
 
   Widget _manageButton(BuildContext context) {
     return OutlinedButton.icon(
@@ -305,10 +305,9 @@ class _CalendarHeader extends StatelessWidget {
                   child: Center(
                     child: Text(
                       title,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -324,10 +323,9 @@ class _CalendarHeader extends StatelessWidget {
             Center(
               child: Text(
                 title,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
             ),

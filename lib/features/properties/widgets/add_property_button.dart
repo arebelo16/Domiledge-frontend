@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class AddPropertyButton extends StatelessWidget {
   final VoidCallback? onPressed;
+
   const AddPropertyButton({super.key, this.onPressed});
 
   @override
@@ -13,7 +14,9 @@ class AddPropertyButton extends StatelessWidget {
         onPressed: onPressed ?? () {},
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.blueAccent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           elevation: 4,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),

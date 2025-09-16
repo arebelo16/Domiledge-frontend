@@ -57,7 +57,7 @@ class _PropertyCalendarState extends State<PropertyCalendar> {
   /// Loads reservations for the month containing [anyDayInMonth]
   Future<void> _loadMonth(DateTime anyDayInMonth) async {
     final first = DateTime(anyDayInMonth.year, anyDayInMonth.month, 1);
-    final next  = DateTime(anyDayInMonth.year, anyDayInMonth.month + 1, 1);
+    final next = DateTime(anyDayInMonth.year, anyDayInMonth.month + 1, 1);
 
     // NOTE: if provider becomes async later, just make fetch async and await it here.
     final list = _provider.fetch(widget.propertyKey, first, next);
@@ -71,9 +71,11 @@ class _PropertyCalendarState extends State<PropertyCalendar> {
   Map<DateTime, List<Reservation>> _groupByDay(List<Reservation> items) {
     final map = <DateTime, List<Reservation>>{};
     for (final r in items) {
-      for (DateTime d = _toDate(r.checkIn);
-      d.isBefore(_toDate(r.checkOut));
-      d = d.add(const Duration(days: 1))) {
+      for (
+        DateTime d = _toDate(r.checkIn);
+        d.isBefore(_toDate(r.checkOut));
+        d = d.add(const Duration(days: 1))
+      ) {
         final key = _toDate(d);
         map.putIfAbsent(key, () => []).add(r);
       }
@@ -97,7 +99,8 @@ class _PropertyCalendarState extends State<PropertyCalendar> {
     return Column(
       children: [
         TableCalendar<Reservation>(
-          key: ValueKey(widget.propertyKey), // force internal reset per property
+          key: ValueKey(widget.propertyKey),
+          // force internal reset per property
           focusedDay: _focusedDay,
           firstDay: DateTime.utc(2023, 1, 1),
           lastDay: DateTime.utc(2030, 12, 31),
@@ -125,11 +128,9 @@ class _PropertyCalendarState extends State<PropertyCalendar> {
             ),
             markersMaxCount: 4,
             outsideTextStyle: TextStyle(
-              color: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.color
-                  ?.withOpacity(.35),
+              color: Theme.of(
+                context,
+              ).textTheme.bodySmall?.color?.withOpacity(.35),
             ),
           ),
           selectedDayPredicate: (d) => isSameDay(d, _selectedDay),
@@ -148,7 +149,7 @@ class _PropertyCalendarState extends State<PropertyCalendar> {
             defaultBuilder: (context, day, _) =>
                 _dayCell(context, day, isSelected: false, isToday: false),
             selectedBuilder: (context, day, _) =>
-                _dayCell(context, day, isSelected: true,  isToday: false),
+                _dayCell(context, day, isSelected: true, isToday: false),
             todayBuilder: (context, day, _) =>
                 _dayCell(context, day, isSelected: false, isToday: true),
 
@@ -171,39 +172,43 @@ class _PropertyCalendarState extends State<PropertyCalendar> {
   }
 
   /// Day cell: keep the reservation band + a top badge for selected/today
-  Widget _dayCell(BuildContext ctx, DateTime day,
-      {required bool isSelected, required bool isToday}) {
+  Widget _dayCell(
+    BuildContext ctx,
+    DateTime day, {
+    required bool isSelected,
+    required bool isToday,
+  }) {
     final rs = _eventsLoader(day);
 
     // pick one reservation to tint the background
     final Reservation? main = rs.isEmpty
         ? null
         : rs.firstWhere(
-          (r) => r.status == ReservationStatus.confirmed,
-      orElse: () => rs.first,
-    );
+            (r) => r.status == ReservationStatus.confirmed,
+            orElse: () => rs.first,
+          );
 
-    final isIn  = main != null && _isCheckIn(day, main);
+    final isIn = main != null && _isCheckIn(day, main);
     final isOut = main != null && _isCheckOut(day, main);
 
     final Color? bg = switch (main?.status) {
       ReservationStatus.cancelled => main!.color.withOpacity(.08),
       ReservationStatus.confirmed => main!.color.withOpacity(.14),
-      ReservationStatus.pending   => main!.color.withOpacity(.14),
-      null                        => null,
+      ReservationStatus.pending => main!.color.withOpacity(.14),
+      null => null,
     };
 
     final BoxDecoration? badge = isSelected
         ? const BoxDecoration(color: Colors.blueAccent, shape: BoxShape.circle)
         : isToday
         ? BoxDecoration(
-      color: Colors.blueAccent.withOpacity(.15),
-      shape: BoxShape.circle,
-      border: Border.all(
-        color: Colors.blueAccent.withOpacity(.35),
-        width: 1,
-      ),
-    )
+            color: Colors.blueAccent.withOpacity(.15),
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Colors.blueAccent.withOpacity(.35),
+              width: 1,
+            ),
+          )
         : null;
 
     return Stack(
@@ -214,7 +219,7 @@ class _PropertyCalendarState extends State<PropertyCalendar> {
               decoration: BoxDecoration(
                 color: bg,
                 borderRadius: BorderRadius.horizontal(
-                  left:  isIn  ? const Radius.circular(10) : Radius.zero,
+                  left: isIn ? const Radius.circular(10) : Radius.zero,
                   right: isOut ? const Radius.circular(10) : Radius.zero,
                 ),
               ),
@@ -242,16 +247,20 @@ class _PropertyCalendarState extends State<PropertyCalendar> {
     );
   }
 
-  Widget _markers(BuildContext context, DateTime day, List<Reservation> reservations) {
+  Widget _markers(
+    BuildContext context,
+    DateTime day,
+    List<Reservation> reservations,
+  ) {
     if (reservations.isEmpty) return const SizedBox.shrink();
 
     const maxDots = 3;
     final pills = reservations.take(maxDots).map((r) {
-      final isIn  = _isCheckIn(day, r);
+      final isIn = _isCheckIn(day, r);
       final isOut = _isCheckOut(day, r);
       return Tooltip(
         message:
-        '${r.guest} • ${_fmt(r.checkIn)} → ${_fmt(r.checkOut)} (${_statusLabel(r.status)})',
+            '${r.guest} • ${_fmt(r.checkIn)} → ${_fmt(r.checkOut)} (${_statusLabel(r.status)})',
         child: Container(
           width: 10,
           height: 10,
@@ -263,7 +272,9 @@ class _PropertyCalendarState extends State<PropertyCalendar> {
             shape: BoxShape.circle,
             border: Border.all(
               width: 1,
-              color: (isIn || isOut) ? Colors.white : Colors.black.withOpacity(.08),
+              color: (isIn || isOut)
+                  ? Colors.white
+                  : Colors.black.withOpacity(.08),
             ),
           ),
         ),
@@ -307,7 +318,6 @@ class _PropertyCalendarState extends State<PropertyCalendar> {
   }
 }
 
-
 class _Legend extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -326,6 +336,7 @@ class _Legend extends StatelessWidget {
 class _LegendItem extends StatelessWidget {
   final Color color;
   final String label;
+
   const _LegendItem({required this.color, required this.label});
 
   @override
@@ -333,8 +344,11 @@ class _LegendItem extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(width: 12, height: 12,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
         const SizedBox(width: 6),
         Text(label, style: const TextStyle(fontSize: 12)),
       ],
@@ -346,10 +360,7 @@ class _DayReservationsList extends StatelessWidget {
   final DateTime day;
   final List<Reservation> reservations;
 
-  const _DayReservationsList({
-    required this.day,
-    required this.reservations,
-  });
+  const _DayReservationsList({required this.day, required this.reservations});
 
   @override
   Widget build(BuildContext context) {
@@ -370,10 +381,14 @@ class _DayReservationsList extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 8),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: isCancelled ? r.color.withOpacity(.06) : r.color.withOpacity(.10),
+            color: isCancelled
+                ? r.color.withOpacity(.06)
+                : r.color.withOpacity(.10),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isCancelled ? r.color.withOpacity(.25) : r.color.withOpacity(.35),
+              color: isCancelled
+                  ? r.color.withOpacity(.25)
+                  : r.color.withOpacity(.35),
             ),
           ),
           child: Row(
@@ -391,7 +406,10 @@ class _DayReservationsList extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(r.guest, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    Text(
+                      r.guest,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
                     const SizedBox(height: 2),
                     Text(
                       'Check-in ${_fmt(r.checkIn)}  •  Check-out ${_fmt(r.checkOut)}',
@@ -425,7 +443,7 @@ class _DayReservationsList extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-              )
+              ),
             ],
           ),
         );
